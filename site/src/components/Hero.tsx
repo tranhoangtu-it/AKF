@@ -43,13 +43,13 @@ export default function Hero() {
         </div>
 
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]">
-          Trust metadata for every
+          The file format for
           <br />
-          <span className="text-accent">file AI touches.</span>
+          <span className="text-accent">the AI era.</span>
         </h1>
 
         <p className="mt-6 text-lg sm:text-xl text-text-secondary max-w-2xl mx-auto">
-          Like EXIF for AI-generated content. AKF attaches trust scores, provenance chains, and security classification to any file format.
+          AKF attaches trust scores, provenance, and security classification to anything AI creates — like EXIF for AI-generated content.
         </p>
 
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
