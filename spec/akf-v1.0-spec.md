@@ -25,6 +25,9 @@ AKF (Agent Knowledge Format) is a lightweight, LLM-native file format for struct
 | id | string | no | auto UUID | Unique knowledge unit ID |
 | by | string | no | — | Creator email or agent ID |
 | agent | string | no | — | AI agent ID if AI-created |
+| model | string | no | — | Model identifier |
+| tools | string[] | no | — | Tools used by the agent |
+| session | string | no | — | Session identifier |
 | at | ISO-8601 | no | now() | Creation timestamp |
 | label | string | no | "internal" | Security classification |
 | inherit | bool | no | true | Children inherit label |
@@ -58,6 +61,21 @@ AKF (Agent Knowledge Format) is a lightweight, LLM-native file format for struct
 | tags | string[] | no | — | Tags |
 | contra | string | no | — | Contradicting claim ID |
 | fidelity | object | no | — | Multi-resolution {h, s, f} |
+| kind | string | no | — | Claim kind (claim, code_change, decision, suggestion, review, test_result, diagnosis) |
+| evidence | array | no | — | Evidence objects supporting the claim |
+
+## Evidence Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| type | string | yes | Evidence type (test_pass, type_check, lint_clean, ci_pass, human_review, other) |
+| detail | string | yes | Description of the evidence |
+| at | ISO-8601 | no | Timestamp |
+| tool | string | no | Tool that produced this evidence |
+
+## Trust Grounding
+
+A claim is **grounded** when it has one or more evidence items. Grounding is informational — it does not change the trust score formula, but indicates whether the claim is backed by verifiable artifacts (test results, type checks, CI runs, human reviews).
 
 ## Provenance Hop Fields
 

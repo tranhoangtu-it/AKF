@@ -7,14 +7,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Optional, Union
 
-from .models import AKF, Claim
+from .models import AKF, Claim, Evidence
 
 
 # ---------------------------------------------------------------------------
 # Create
 # ---------------------------------------------------------------------------
 
-def create(content: str, confidence: float = None, *, t: float = None, **kwargs) -> AKF:
+def create(content: str, confidence: float = None, *, t: float = None, kind: str = None, evidence: list = None, **kwargs) -> AKF:
     """Create a single-claim AKF unit with secure defaults.
 
     Accepts either ``confidence=`` (descriptive) or ``t=`` (compact) for
@@ -43,6 +43,17 @@ def create(content: str, confidence: float = None, *, t: float = None, **kwargs)
     }
     for k, v in claim_defaults.items():
         kwargs.setdefault(k, v)
+
+    # Process evidence
+    evidence_objects = None
+    if evidence is not None:
+        evidence_objects = _parse_evidence_list(evidence)
+
+    if kind is not None:
+        kwargs["kind"] = kind
+    if evidence_objects is not None:
+        kwargs["evidence"] = evidence_objects
+
     claim = Claim(content=content, confidence=score, **kwargs)
     unit = AKF(version="1.0", claims=[claim])
     # Apply secure envelope defaults
@@ -242,3 +253,20 @@ def _parse_iso(s: str) -> None:
     """Quick ISO-8601 validation."""
     s = s.replace("Z", "+00:00")
     datetime.fromisoformat(s)
+
+
+def _parse_evidence_list(evidence: list) -> List["Evidence"]:
+    """Convert a mixed list of Evidence objects, dicts, or strings into Evidence objects."""
+    from .stamp import parse_evidence_string
+
+    result = []
+    for item in evidence:
+        if isinstance(item, Evidence):
+            result.append(item)
+        elif isinstance(item, dict):
+            result.append(Evidence(**item))
+        elif isinstance(item, str):
+            result.append(parse_evidence_string(item))
+        else:
+            raise TypeError(f"Unsupported evidence type: {type(item)}")
+    return result

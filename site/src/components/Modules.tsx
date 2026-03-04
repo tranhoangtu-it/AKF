@@ -2,6 +2,18 @@ import SectionHeading from '../ui/SectionHeading';
 
 const modules = [
   {
+    name: 'Stamp API',
+    pkg: 'akf.stamp',
+    description: 'One-line API for coding agents. Auto-detects evidence type from strings (test_pass, type_check, lint_clean, ci_pass, human_review).',
+    functions: ['stamp()', 'parse_evidence_string()'],
+  },
+  {
+    name: 'Git Integration',
+    pkg: 'akf.git_ops',
+    description: 'Stamp git commits with AKF metadata via git notes (refs/notes/akf). Trust-annotated git log with ASCII indicators.',
+    functions: ['stamp_commit()', 'read_commit()', 'trust_log()'],
+  },
+  {
     name: 'Agent Integration',
     pkg: 'akf.agent',
     description: 'Consume upstream knowledge, derive new units, generate AKF from tool calls, format claims as LLM context.',

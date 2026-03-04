@@ -12,6 +12,8 @@ This is the comprehensive reference for AI agents that need to generate AKF code
 - Dual Field Names (Compact & Descriptive)
 - Envelope Fields
 - Claim Fields
+- Evidence Fields
+- Claim Kinds
 - Provenance Fields
 - Fidelity (Multi-Resolution)
 - Security Classification
@@ -19,6 +21,8 @@ This is the comprehensive reference for AI agents that need to generate AKF code
 - Validation Rules
 - Integrity Hashing
 - Secure Defaults
+- Stamp API (Coding Agents)
+- Git Integration
 - Python SDK API
 - Agent Integration API
 - Compliance & Audit API
@@ -235,6 +239,9 @@ AKF supports both compact (wire format) and descriptive (human-readable) field n
 | `id` | string | no | auto `akf-<12hex>` | Unique knowledge unit ID |
 | `by` / `author` | string | no | — | Creator email or agent ID |
 | `agent` | string | no | — | AI agent ID if AI-created |
+| `model` | string | no | — | Model identifier (e.g. claude-sonnet-4-20250514) |
+| `tools` | string[] | no | — | Tools used by the agent |
+| `session` | string | no | — | Session identifier for grouping units |
 | `at` / `created` | ISO-8601 | no | `now()` | Creation timestamp |
 | `label` / `classification` | string | no | `"internal"` | Security classification |
 | `inherit` / `inherit_classification` | bool | no | `true` | Children inherit label |
@@ -266,6 +273,8 @@ AKF supports both compact (wire format) and descriptive (human-readable) field n
 | `tags` | string[] | no | — | Free-form tags |
 | `contra` / `contradicts` | string | no | — | ID of contradicting claim |
 | `fidelity` | object | no | — | Multi-resolution content |
+| `kind` | string | no | — | Claim kind (claim, code_change, decision, suggestion, review, test_result, diagnosis) |
+| `evidence` | Evidence[] | no | — | Evidence supporting the claim |
 
 ### Authority Tiers
 
@@ -290,6 +299,33 @@ AKF supports both compact (wire format) and descriptive (human-readable) field n
 - `h` — headline, ~5 tokens
 - `s` — summary, ~50 tokens
 - `f` — full detail, ~2000 tokens
+
+### Evidence Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `type` | string | YES | Evidence type: `test_pass`, `type_check`, `lint_clean`, `ci_pass`, `human_review`, `other` |
+| `detail` | string | YES | Description of the evidence |
+| `at` | ISO-8601 | no | Timestamp |
+| `tool` | string | no | Tool that produced this evidence |
+
+### Claim Kinds
+
+| Kind | Description |
+|------|-------------|
+| `claim` | General factual assertion (default) |
+| `code_change` | Code modification or fix |
+| `decision` | Architectural or design decision |
+| `suggestion` | Proposed change or recommendation |
+| `review` | Code review or PR review |
+| `test_result` | Test execution result |
+| `diagnosis` | Bug diagnosis or root cause analysis |
+
+### Trust Grounding
+
+A claim is **grounded** when it has one or more evidence items. Grounding is informational — it does not change the trust score formula, but indicates whether the claim is backed by verifiable artifacts.
+
+`effective_trust()` returns `grounded: bool` and `evidence_count: int` alongside the score.
 
 ---
 
@@ -429,6 +465,75 @@ New units created with `akf.create()` or `AKFBuilder` apply these defaults:
 | `ai_generated` | `False` |
 
 Provenance hop 0 and integrity hash are auto-created by the builder.
+
+---
+
+## Stamp API (Coding Agents)
+
+One-line API for coding agents (Claude Code, Copilot, Cursor, Devin, etc.):
+
+```python
+import akf
+
+# One-line stamp with auto-detected evidence
+akf.stamp("Fixed auth bypass", kind="code_change",
+          evidence=["42/42 tests passed", "mypy: 0 errors"],
+          agent="claude-code", model="claude-sonnet-4-20250514")
+
+# Evidence strings are auto-parsed:
+# "42/42 tests passed" → type="test_pass"
+# "mypy: 0 errors"     → type="type_check"
+# "lint clean"          → type="lint_clean"
+# "CI passed"           → type="ci_pass"
+# "approved by @alice"  → type="human_review"
+# anything else         → type="other"
+
+# Defaults: confidence=0.7, ai_generated=True, kind="claim"
+```
+
+### stamp() Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `content` | str | required | What the agent did or claims |
+| `confidence` | float | 0.7 | Trust score 0.0-1.0 |
+| `kind` | str | "claim" | Claim kind |
+| `evidence` | list | None | Strings, dicts, or Evidence objects |
+| `agent` | str | None | Agent identifier |
+| `model` | str | None | Model identifier |
+| `tools` | list | None | Tools used |
+| `session` | str | None | Session identifier |
+| `ai_generated` | bool | True | AI-generated flag |
+
+---
+
+## Git Integration
+
+Store AKF metadata as git notes under `refs/notes/akf` (doesn't conflict with regular git notes):
+
+```python
+import akf
+
+# Stamp the current commit
+akf.stamp_commit(content="Refactored auth module", kind="code_change",
+                 evidence=["all tests pass"], agent="claude-code")
+
+# Read AKF from a commit
+unit = akf.read_commit()       # HEAD
+unit = akf.read_commit("abc123")  # specific ref
+
+# Trust-annotated git log
+print(akf.trust_log(n=10))
+#   Trust Log (refs/notes/akf)
+#   --------------------------------------------------
+#   + a1b2c3d 0.90 Fixed auth bypass [code_change]
+#   ~ d4e5f6g 0.45 Updated config [decision]
+#   ? h7i8j9k       Added README
+#   --------------------------------------------------
+#   + ACCEPT  ~ LOW  - REJECT  ? no metadata
+```
+
+No external dependencies — uses subprocess + git CLI.
 
 ---
 

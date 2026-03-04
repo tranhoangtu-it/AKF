@@ -37,6 +37,29 @@ TypeScript / Node.js:
 npm install akf
 ```
 
+## For Coding Agents
+
+One-line `stamp()` API and git integration for Claude Code, Copilot, Cursor, Devin, etc.:
+
+```python
+import akf
+
+# One-line stamp with evidence
+akf.stamp("Fixed auth bypass", kind="code_change",
+    evidence=["42/42 tests passed", "mypy: 0 errors"],
+    agent="claude-code", model="claude-sonnet-4-20250514")
+
+# Git integration (uses git notes, not commit messages)
+akf.stamp_commit(content="Refactored auth", kind="code_change",
+    evidence=["all tests pass"], agent="claude-code")
+unit = akf.read_commit()
+print(akf.trust_log(n=10))
+```
+
+**Evidence types** (auto-detected from strings): `test_pass`, `type_check`, `lint_clean`, `ci_pass`, `human_review`, `other`
+
+**Claim kinds**: `claim`, `code_change`, `decision`, `suggestion`, `review`, `test_result`, `diagnosis`
+
 ## Quick Usage
 
 Python (descriptive field names):
@@ -58,7 +81,7 @@ unit = akf.create("Revenue grew 12%", t=0.95, src="SEC filing", tier=1)
 
 # Compute effective trust
 result = akf.effective_trust(unit.claims[0])
-# result.score=0.95, result.decision="ACCEPT"
+# result.score=0.95, result.decision="ACCEPT", result.grounded=False
 print(akf.explain_trust(unit.claims[0]))
 
 # Compliance auditing
@@ -114,6 +137,8 @@ Trust formula: `effective_trust = confidence × authority_weight × temporal_dec
 | Module | Description |
 |--------|-------------|
 | `akf` (core) | create, validate, load, save, effective_trust, AKFBuilder, AKFTransformer |
+| `akf.stamp` | stamp() — one-line API for coding agents with evidence parsing |
+| `akf.git_ops` | stamp_commit, read_commit, trust_log — git notes integration |
 | `akf.agent` | consume, derive, from_tool_call, to_context, detect, generation_prompt |
 | `akf.compliance` | audit, check_regulation, audit_trail, verify_human_oversight |
 | `akf.view` | show, to_html, to_markdown, executive_summary |

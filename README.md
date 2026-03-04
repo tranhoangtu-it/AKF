@@ -26,6 +26,31 @@ print(result.valid, result.level)  # True, 2
 unit = akf.create("Revenue was $4.2B", t=0.98, src="SEC 10-Q", tier=1)
 ```
 
+## For Coding Agents
+
+AKF ships a one-line `stamp()` API and git integration designed for Claude Code, Copilot, Cursor, Devin, and other coding agents.
+
+```python
+import akf
+
+# One line — stamp what you did, with evidence
+akf.stamp("Fixed auth bypass", kind="code_change",
+          evidence=["42/42 tests passed", "mypy: 0 errors"],
+          agent="claude-code", model="claude-sonnet-4-20250514")
+
+# Stamp directly onto git commits (uses git notes, not commit messages)
+akf.stamp_commit(content="Refactored auth module", kind="code_change",
+                 evidence=["all tests pass"], agent="claude-code")
+
+# Read it back
+unit = akf.read_commit()
+
+# Trust-annotated git log (+ ACCEPT, ~ LOW, - REJECT, ? no metadata)
+print(akf.trust_log(n=10))
+```
+
+Evidence is auto-detected from plain strings: `"42/42 tests passed"` becomes `type="test_pass"`, `"mypy: 0 errors"` becomes `type="type_check"`, etc.
+
 ## Why AKF?
 
 | Era | Format | Carries |

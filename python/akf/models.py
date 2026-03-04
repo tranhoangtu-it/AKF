@@ -17,6 +17,12 @@ from pydantic import AliasChoices, BaseModel, ConfigDict, Field, model_validator
 # ---------------------------------------------------------------------------
 
 _FIDELITY_COMPACT = {"headline": "h", "summary": "s", "full": "f"}
+_EVIDENCE_COMPACT = {
+    "type": "type",
+    "detail": "detail",
+    "timestamp": "at",
+    "tool": "tool",
+}
 _CLAIM_COMPACT = {
     "content": "c",
     "confidence": "t",
@@ -65,6 +71,23 @@ class Fidelity(BaseModel):
         return d
 
 
+class Evidence(BaseModel):
+    """A piece of evidence supporting a claim."""
+
+    model_config = ConfigDict(extra="allow", populate_by_name=True)
+
+    type: str
+    detail: str
+    timestamp: Optional[str] = Field(None, validation_alias=AliasChoices("at", "timestamp"))
+    tool: Optional[str] = None
+
+    def to_dict(self, compact: bool = False) -> dict:
+        d = _strip_none(self.model_dump())
+        if compact:
+            d = _remap_keys(d, _EVIDENCE_COMPACT)
+        return d
+
+
 class Claim(BaseModel):
     """A single knowledge claim with trust metadata."""
 
@@ -93,6 +116,8 @@ class Claim(BaseModel):
         None, validation_alias=AliasChoices("contra", "contradicts")
     )
     fidelity: Optional[Fidelity] = None
+    kind: Optional[str] = None
+    evidence: Optional[List["Evidence"]] = None
 
     @model_validator(mode="before")
     @classmethod
@@ -105,6 +130,8 @@ class Claim(BaseModel):
         d = _strip_none(self.model_dump())
         if self.fidelity is not None:
             d["fidelity"] = self.fidelity.to_dict(compact=compact)
+        if self.evidence is not None:
+            d["evidence"] = [e.to_dict(compact=compact) for e in self.evidence]
         if compact:
             d = _remap_keys(d, _CLAIM_COMPACT)
         return d
@@ -148,6 +175,9 @@ class AKF(BaseModel):
     id: Optional[str] = None
     author: Optional[str] = Field(None, validation_alias=AliasChoices("by", "author"))
     agent: Optional[str] = None
+    model: Optional[str] = None
+    tools: Optional[List[str]] = None
+    session: Optional[str] = None
     created: Optional[str] = Field(None, validation_alias=AliasChoices("at", "created"))
     classification: Optional[str] = Field(
         None, validation_alias=AliasChoices("label", "classification")
@@ -237,8 +267,10 @@ class AKF(BaseModel):
             src_str = claim.source or ""
             ver_str = " verified" if claim.verified else ""
             ai_str = " [AI]" if claim.ai_generated else ""
+            kind_str = " ({})".format(claim.kind) if claim.kind else ""
+            ev_str = " [{}ev]".format(len(claim.evidence)) if claim.evidence else ""
             lines.append(
-                '  {} {:.2f}  "{}"  {}  {}{}{}'.format(
+                '  {} {:.2f}  "{}"  {}  {}{}{}{}{}'.format(
                     icon,
                     claim.confidence,
                     claim.content,
@@ -246,6 +278,8 @@ class AKF(BaseModel):
                     tier_str,
                     ver_str,
                     ai_str,
+                    kind_str,
+                    ev_str,
                 )
             )
         if self.prov:

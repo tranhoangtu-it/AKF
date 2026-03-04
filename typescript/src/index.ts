@@ -6,7 +6,7 @@
  */
 
 // Models
-export type { AKFUnit, Claim, Fidelity, ProvHop } from "./models.js";
+export type { AKFUnit, Claim, Evidence, Fidelity, ProvHop } from "./models.js";
 export {
   normalizeClaim,
   normalizeProvHop,

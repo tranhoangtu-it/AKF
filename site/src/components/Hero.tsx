@@ -49,7 +49,7 @@ export default function Hero() {
         </h1>
 
         <p className="mt-6 text-lg sm:text-xl text-text-secondary max-w-2xl mx-auto">
-          AKF attaches trust scores, provenance, and security classification to anything AI creates — like EXIF for AI-generated content.
+          AKF attaches trust scores, evidence, and provenance to anything AI creates. One-line integration for coding agents — stamp commits with test results, type checks, and CI status.
         </p>
 
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">

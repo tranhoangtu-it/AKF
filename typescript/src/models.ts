@@ -16,6 +16,20 @@ export interface Fidelity {
   f?: string;
 }
 
+/** A piece of evidence supporting a claim. */
+export interface Evidence {
+  /** Evidence type (test_pass, type_check, lint_clean, ci_pass, human_review, other) */
+  type: string;
+  /** Description of the evidence */
+  detail: string;
+  /** ISO-8601 timestamp */
+  at?: string;
+  /** Tool that produced the evidence */
+  tool?: string;
+  /** Extensible: unknown fields */
+  [key: string]: unknown;
+}
+
 /** A single knowledge claim with trust metadata. */
 export interface Claim {
   /** Content (required) */
@@ -48,6 +62,10 @@ export interface Claim {
   contra?: string;
   /** Multi-resolution fidelity */
   fidelity?: Fidelity;
+  /** Kind of claim (claim, code_change, decision, suggestion, review, test_result, diagnosis) */
+  kind?: string;
+  /** Evidence supporting the claim */
+  evidence?: Evidence[];
   /** Extensible: unknown fields */
   [key: string]: unknown;
 }
@@ -86,6 +104,12 @@ export interface AKFUnit {
   by?: string;
   /** AI agent identifier */
   agent?: string;
+  /** Model identifier */
+  model?: string;
+  /** Tools used */
+  tools?: string[];
+  /** Session identifier */
+  session?: string;
   /** ISO-8601 creation timestamp */
   at?: string;
   /** Security classification */

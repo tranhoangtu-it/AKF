@@ -24,6 +24,19 @@
       "type": "string",
       "description": "AI agent ID if AI-created"
     },
+    "model": {
+      "type": "string",
+      "description": "Model identifier (e.g. claude-sonnet-4-20250514)"
+    },
+    "tools": {
+      "type": "array",
+      "description": "Tools used by the agent",
+      "items": { "type": "string" }
+    },
+    "session": {
+      "type": "string",
+      "description": "Session identifier for grouping units"
+    },
     "at": {
       "type": "string",
       "description": "Creation timestamp (ISO-8601)",
@@ -147,6 +160,41 @@
         },
         "fidelity": {
           "$ref": "#/$defs/Fidelity"
+        },
+        "kind": {
+          "type": "string",
+          "description": "Kind of claim: claim, code_change, decision, suggestion, review, test_result, diagnosis"
+        },
+        "evidence": {
+          "type": "array",
+          "description": "Evidence supporting the claim",
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          }
+        }
+      }
+    },
+    "Evidence": {
+      "type": "object",
+      "required": ["type", "detail"],
+      "additionalProperties": true,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Evidence type: test_pass, type_check, lint_clean, ci_pass, human_review, other"
+        },
+        "detail": {
+          "type": "string",
+          "description": "Description of the evidence"
+        },
+        "at": {
+          "type": "string",
+          "description": "Timestamp (ISO-8601)",
+          "format": "date-time"
+        },
+        "tool": {
+          "type": "string",
+          "description": "Tool that produced this evidence"
         }
       }
     },

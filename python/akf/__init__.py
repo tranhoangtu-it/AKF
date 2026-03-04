@@ -16,7 +16,7 @@ Usage:
     akf.info("report.docx")
 """
 
-from .models import AKF, Claim, Fidelity, ProvHop
+from .models import AKF, Claim, Evidence, Fidelity, ProvHop
 from .core import create, create_multi, load, loads, validate, ValidationResult
 from .builder import AKFBuilder
 from .trust import effective_trust, compute_all, explain_trust, TrustResult, TrustLevel, AUTHORITY_WEIGHTS
@@ -31,6 +31,8 @@ from .compliance import audit, check_regulation, audit_trail, verify_human_overs
 from .view import show, to_html, to_markdown, executive_summary
 from .data import load_dataset, quality_report, merge, filter_claims
 from .knowledge_base import KnowledgeBase
+from .stamp import stamp
+from .git_ops import stamp_commit, read_commit, trust_log
 
 # Universal format layer — lazy imports to avoid optional dependency issues
 def embed(filepath, **kwargs):
@@ -67,6 +69,7 @@ __all__ = [
     "AUTHORITY_WEIGHTS",
     "AuditResult",
     "Claim",
+    "Evidence",
     "Fidelity",
     "KnowledgeBase",
     "ProvHop",
@@ -118,6 +121,11 @@ __all__ = [
     "load_dataset",
     "merge",
     "quality_report",
+    # Stamp & Git
+    "stamp",
+    "stamp_commit",
+    "read_commit",
+    "trust_log",
     # Universal format layer
     "embed",
     "extract",

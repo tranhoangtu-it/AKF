@@ -20,6 +20,9 @@ class AKFBuilder:
         self._ext: Optional[bool] = None
         self._ttl: Optional[int] = None
         self._meta: Optional[dict] = None
+        self._model: Optional[str] = None
+        self._tools: Optional[List[str]] = None
+        self._session: Optional[str] = None
 
     def claim(self, content: str, trust: float, **kwargs) -> "AKFBuilder":
         """Add a claim."""
@@ -71,6 +74,53 @@ class AKFBuilder:
         self._meta = kwargs
         return self
 
+    def kind(self, kind: str) -> "AKFBuilder":
+        """Set the kind on the last claim."""
+        if not self._claims:
+            raise ValueError("No claims — add a claim first")
+        last = self._claims[-1]
+        self._claims[-1] = last.model_copy(update={"kind": kind})
+        return self
+
+    def evidence(self, *items) -> "AKFBuilder":
+        """Add evidence to the last claim. Accepts Evidence objects, dicts, or strings."""
+        if not self._claims:
+            raise ValueError("No claims — add a claim first")
+        from .stamp import parse_evidence_string
+        from .models import Evidence
+
+        parsed = []
+        for item in items:
+            if isinstance(item, Evidence):
+                parsed.append(item)
+            elif isinstance(item, dict):
+                parsed.append(Evidence(**item))
+            elif isinstance(item, str):
+                parsed.append(parse_evidence_string(item))
+            else:
+                raise TypeError(f"Unsupported evidence type: {type(item)}")
+
+        last = self._claims[-1]
+        existing = list(last.evidence) if last.evidence else []
+        existing.extend(parsed)
+        self._claims[-1] = last.model_copy(update={"evidence": existing})
+        return self
+
+    def model(self, model_id: str) -> "AKFBuilder":
+        """Set the model identifier."""
+        self._model = model_id
+        return self
+
+    def tools(self, *tool_names: str) -> "AKFBuilder":
+        """Set the tools used."""
+        self._tools = list(tool_names)
+        return self
+
+    def session(self, session_id: str) -> "AKFBuilder":
+        """Set the session identifier."""
+        self._session = session_id
+        return self
+
     def build(self) -> AKF:
         """Build the AKF unit."""
         if not self._claims:
@@ -99,6 +149,9 @@ class AKFBuilder:
             claims=self._claims,
             author=self._by,
             agent=self._agent_id,
+            model=self._model,
+            tools=self._tools,
+            session=self._session,
             created=now,
             classification=self._label if self._label is not None else "internal",
             inherit_classification=self._inherit if self._inherit is not None else True,

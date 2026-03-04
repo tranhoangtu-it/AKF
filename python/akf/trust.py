@@ -55,6 +55,8 @@ class TrustResult:
     score: float
     decision: str  # "ACCEPT" | "LOW" | "REJECT"
     breakdown: dict
+    grounded: bool = False
+    evidence_count: int = 0
 
     @property
     def accepted(self) -> bool:
@@ -98,6 +100,10 @@ def effective_trust(
     else:
         decision = "REJECT"
 
+    # Evidence grounding
+    ev_count = len(claim.evidence) if claim.evidence else 0
+    is_grounded = ev_count > 0
+
     return TrustResult(
         score=round(score, 4),
         decision=decision,
@@ -109,6 +115,8 @@ def effective_trust(
             "penalty": penalty,
             "penalty_factor": round(penalty_factor, 4),
         },
+        grounded=is_grounded,
+        evidence_count=ev_count,
     )
 
 
@@ -128,6 +136,11 @@ def explain_trust(claim: Claim, age_days: float = 0, penalty: float = 0) -> str:
     lines.append(f"  ─────────────────────────────────")
     lines.append(f"  Effective trust:    {result.score:.4f}")
     lines.append(f"  Decision:           {result.decision}")
+
+    if result.evidence_count > 0:
+        lines.append(f"  Evidence:           {result.evidence_count} piece(s) — grounded")
+    else:
+        lines.append(f"  Evidence:           none — ungrounded")
 
     if result.decision == "ACCEPT":
         lines.append("  → Claim meets trust threshold for use.")

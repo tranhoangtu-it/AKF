@@ -41,6 +41,8 @@ export interface TrustResult {
     penalty: number;
     penalty_factor: number;
   };
+  grounded: boolean;
+  evidenceCount: number;
 }
 
 /**
@@ -81,6 +83,8 @@ export function effectiveTrust(
     decision = "REJECT";
   }
 
+  const evidenceCount = Array.isArray(claim.evidence) ? claim.evidence.length : 0;
+
   return {
     score: round4(score),
     decision,
@@ -92,6 +96,8 @@ export function effectiveTrust(
       penalty,
       penalty_factor: round4(penaltyFactor),
     },
+    grounded: evidenceCount > 0,
+    evidenceCount,
   };
 }
 

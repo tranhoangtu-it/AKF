@@ -4,10 +4,16 @@ import CodeBlock from '../ui/CodeBlock';
 
 const pythonCode = `import akf
 
-# Create with descriptive field names (secure defaults applied)
-unit = akf.create("Revenue was $4.2B, up 12% YoY",
-    confidence=0.98, source="SEC 10-Q", authority_tier=1)
-unit.save("report.akf")
+# One-line stamp API for coding agents
+akf.stamp("Fixed auth bypass", kind="code_change",
+    evidence=["42/42 tests passed", "mypy: 0 errors"],
+    agent="claude-code", model="claude-sonnet-4-20250514")
+
+# Stamp directly onto git commits (uses git notes)
+akf.stamp_commit(content="Refactored auth", kind="code_change",
+    evidence=["all tests pass"], agent="claude-code")
+unit = akf.read_commit()
+print(akf.trust_log(n=10))
 
 # Builder API for multiple claims
 unit = (akf.AKFBuilder()
@@ -22,15 +28,12 @@ unit = (akf.AKFBuilder()
 for claim in unit.claims:
     result = akf.effective_trust(claim)
     print(f"{result.decision}: {result.score:.2f} — {claim.content}")
+    print(f"  grounded: {result.grounded}, evidence: {result.evidence_count}")
 print(akf.explain_trust(unit.claims[0]))
 
 # Compliance auditing
 result = akf.audit("report.akf")
-print(f"Score: {result.score:.2f}, Compliant: {result.compliant}")
-akf.check_regulation("report.akf", "eu_ai_act")
-
-# Embed into any format
-akf.embed("report.docx", claims=[...], classification="confidential")`;
+akf.check_regulation("report.akf", "eu_ai_act")`;
 
 const typescriptCode = `import { AKFBuilder, effectiveTrust, fromJSON, toDescriptive } from 'akf';
 
