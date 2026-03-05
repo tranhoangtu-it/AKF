@@ -1,9 +1,5 @@
 <p align="center">
   <img src="https://img.shields.io/badge/format-.akf-blue?style=for-the-badge" alt="AKF Format" />
-  <img src="https://img.shields.io/pypi/v/akf?style=for-the-badge&color=blue" alt="PyPI" />
-  <img src="https://img.shields.io/npm/v/akf-format?style=for-the-badge&color=blue" alt="npm" />
-  <img src="https://img.shields.io/github/license/HMAKT99/AKF?style=for-the-badge" alt="License" />
-  <img src="https://img.shields.io/github/stars/HMAKT99/AKF?style=for-the-badge" alt="Stars" />
 </p>
 
 <h1 align="center">AKF — Agent Knowledge Format</h1>
