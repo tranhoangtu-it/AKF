@@ -218,6 +218,6 @@ def stamp_file(
 
     # Embed into the file using universal format layer
     from .universal import embed as _embed
-    _embed(filepath, unit=unit)
+    _embed(filepath, metadata=unit.model_dump(exclude_none=True))
 
     return unit

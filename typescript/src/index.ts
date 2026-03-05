@@ -1,5 +1,5 @@
 /**
- * AKF — Agent Knowledge Format v1.0
+ * AKF — Agent Knowledge Format v1.1
  *
  * Lightweight, LLM-native file format for structured knowledge exchange
  * with built-in trust, provenance, and security metadata.
@@ -57,6 +57,20 @@ export {
 
 // Transform
 export { AKFTransformer } from "./transform.js";
+
+// File I/O: read, write, stamp, embed, extract, scan
+export {
+  read,
+  extract,
+  embed,
+  stampFile,
+  scan,
+} from "./file.js";
+export type { EmbedOptions, StampOptions, ScanResult } from "./file.js";
+
+// Streaming
+export { AKFStream, stream } from "./stream.js";
+export type { StreamOptions, AKFStreamLine } from "./stream.js";
 
 // Detection classes
 export {

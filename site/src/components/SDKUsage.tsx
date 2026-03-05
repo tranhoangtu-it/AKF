@@ -49,17 +49,16 @@ print(report.triggered_count)  # number of detections fired`;
 const typescriptCode = `import { stampFile, read, audit, stream, runAllDetections } from 'akf';
 
 // Stamp any file with trust metadata
-await stampFile('report.pdf', {
+const unit = stampFile('report.pdf', {
   model: 'gpt-4o',
   claims: ['Summary verified by legal team'],
   trustScore: 0.92,
 });
 
 // Read trust metadata from any file
-const unit = await read('report.pdf');
-console.log(unit.trustScore);    // 0.92
-console.log(unit.claims);        // who made it, what evidence backs it
-console.log(unit.prov);          // every agent hop, timestamped
+const loaded = read('report.pdf');
+console.log(loaded.claims);        // who made it, what evidence backs it
+console.log(loaded.prov);          // every agent hop, timestamped
 
 // Streaming — attach trust as content generates
 const s = stream('output.md', { model: 'claude-4' });
@@ -69,12 +68,13 @@ for await (const chunk of llm.generate()) {
 await s.close();
 
 // Audit for compliance
-const result = await audit('report.pdf', { regulation: 'eu_ai_act' });
+const result = audit(loaded);
 console.log(result.compliant);   // true / false
+console.log(result.score);       // 0.0-1.0
 
 // Run all 10 security detection classes
-const report = await runAllDetections('report.pdf');
-console.log(report.triggeredCount);  // number of detections fired`;
+const report = runAllDetections(loaded);
+console.log(report.results.length);   // 10 detection classes checked`;
 
 interface Feature {
   icon: React.ReactNode;

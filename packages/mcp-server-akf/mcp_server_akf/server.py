@@ -1,21 +1,30 @@
-"""MCP server implementation for AKF."""
+"""MCP server implementation for AKF — Agent Knowledge Format.
+
+Exposes 4 tools via Model Context Protocol:
+  - create_claim: Create AKF trust metadata
+  - validate_file: Validate an .akf file
+  - scan_file: Security scan any file
+  - trust_score: Compute effective trust score
+"""
 
 from __future__ import annotations
 
+import asyncio
 import json
+import sys
 
 import akf
+from mcp.server import Server
+from mcp.server.stdio import stdio_server
+from mcp.types import Tool, TextContent
 
 
-def create_claim(content: str, confidence: float, source: str = None, ai_generated: bool = True) -> dict:
-    """Create an AKF claim and return as JSON.
+# ---------------------------------------------------------------------------
+# Tool implementations
+# ---------------------------------------------------------------------------
 
-    Args:
-        content: The factual claim
-        confidence: Trust score 0.0-1.0
-        source: Information source
-        ai_generated: Whether this is AI-generated (default True)
-    """
+def create_claim(content: str, confidence: float, source: str | None = None, ai_generated: bool = True) -> dict:
+    """Create an AKF claim and return as JSON."""
     unit = akf.create(
         content,
         confidence=confidence,
@@ -26,11 +35,7 @@ def create_claim(content: str, confidence: float, source: str = None, ai_generat
 
 
 def validate_file(path: str) -> dict:
-    """Validate an .akf file.
-
-    Args:
-        path: Path to the .akf file
-    """
+    """Validate an .akf file."""
     result = akf.validate(path)
     return {
         "valid": result.valid,
@@ -41,11 +46,7 @@ def validate_file(path: str) -> dict:
 
 
 def scan_file(path: str) -> dict:
-    """Security scan a file for AKF metadata.
-
-    Args:
-        path: Path to any file
-    """
+    """Security scan any file for AKF metadata."""
     from akf import universal
     report = universal.scan(path)
     return {
@@ -59,13 +60,7 @@ def scan_file(path: str) -> dict:
 
 
 def trust_score(content: str, confidence: float, authority_tier: int = 3) -> dict:
-    """Compute effective trust score for a claim.
-
-    Args:
-        content: The claim content
-        confidence: Base confidence score
-        authority_tier: Authority tier 1-5
-    """
+    """Compute effective trust score for a claim."""
     from akf.models import Claim
     from akf.trust import effective_trust
 
@@ -78,64 +73,108 @@ def trust_score(content: str, confidence: float, authority_tier: int = 3) -> dic
     }
 
 
-# MCP tool definitions for registration
+# ---------------------------------------------------------------------------
+# MCP tool definitions
+# ---------------------------------------------------------------------------
+
 TOOLS = [
-    {
-        "name": "create_claim",
-        "description": "Create an AKF claim with trust metadata",
-        "inputSchema": {
+    Tool(
+        name="create_claim",
+        description="Create an AKF claim with trust metadata. Returns a JSON object with the claim, trust score, and provenance.",
+        inputSchema={
             "type": "object",
             "required": ["content", "confidence"],
             "properties": {
-                "content": {"type": "string", "description": "The factual claim"},
-                "confidence": {"type": "number", "minimum": 0, "maximum": 1, "description": "Trust score"},
-                "source": {"type": "string", "description": "Information source"},
-                "ai_generated": {"type": "boolean", "default": True},
+                "content": {"type": "string", "description": "The factual claim to create"},
+                "confidence": {"type": "number", "minimum": 0, "maximum": 1, "description": "Trust score 0.0-1.0"},
+                "source": {"type": "string", "description": "Information source (e.g., 'SEC 10-Q')"},
+                "ai_generated": {"type": "boolean", "default": True, "description": "Whether this claim is AI-generated"},
             },
         },
-    },
-    {
-        "name": "validate_file",
-        "description": "Validate an .akf file for correctness",
-        "inputSchema": {
+    ),
+    Tool(
+        name="validate_file",
+        description="Validate an .akf file against the AKF specification. Returns validity status, validation level (0-3), errors, and warnings.",
+        inputSchema={
             "type": "object",
             "required": ["path"],
             "properties": {
-                "path": {"type": "string", "description": "Path to .akf file"},
+                "path": {"type": "string", "description": "Path to the .akf file to validate"},
             },
         },
-    },
-    {
-        "name": "scan_file",
-        "description": "Security scan any file for AKF metadata",
-        "inputSchema": {
+    ),
+    Tool(
+        name="scan_file",
+        description="Security scan any file for AKF trust metadata. Works with .akf, .docx, .pdf, .html, .md, .json, images, and any format with a sidecar.",
+        inputSchema={
             "type": "object",
             "required": ["path"],
             "properties": {
-                "path": {"type": "string", "description": "Path to file"},
+                "path": {"type": "string", "description": "Path to the file to scan"},
             },
         },
-    },
-    {
-        "name": "trust_score",
-        "description": "Compute effective trust score for a claim",
-        "inputSchema": {
+    ),
+    Tool(
+        name="trust_score",
+        description="Compute the effective trust score for a claim using AKF's trust computation engine. Factors in confidence, authority tier, and temporal decay.",
+        inputSchema={
             "type": "object",
             "required": ["content", "confidence"],
             "properties": {
-                "content": {"type": "string"},
-                "confidence": {"type": "number", "minimum": 0, "maximum": 1},
-                "authority_tier": {"type": "integer", "minimum": 1, "maximum": 5, "default": 3},
+                "content": {"type": "string", "description": "The claim to score"},
+                "confidence": {"type": "number", "minimum": 0, "maximum": 1, "description": "Base confidence score"},
+                "authority_tier": {"type": "integer", "minimum": 1, "maximum": 5, "default": 3, "description": "Authority tier 1-5 (1=official records, 5=AI inference)"},
             },
         },
-    },
+    ),
 ]
+
+# Map tool names to handler functions
+HANDLERS = {
+    "create_claim": create_claim,
+    "validate_file": validate_file,
+    "scan_file": scan_file,
+    "trust_score": trust_score,
+}
+
+
+# ---------------------------------------------------------------------------
+# MCP Server
+# ---------------------------------------------------------------------------
+
+def create_server() -> Server:
+    """Create and configure the MCP server."""
+    server = Server("akf")
+
+    @server.list_tools()
+    async def list_tools() -> list[Tool]:
+        return TOOLS
+
+    @server.call_tool()
+    async def call_tool(name: str, arguments: dict) -> list[TextContent]:
+        handler = HANDLERS.get(name)
+        if not handler:
+            return [TextContent(type="text", text=json.dumps({"error": f"Unknown tool: {name}"}))]
+
+        try:
+            result = handler(**arguments)
+            return [TextContent(type="text", text=json.dumps(result, indent=2, default=str))]
+        except Exception as e:
+            return [TextContent(type="text", text=json.dumps({"error": str(e)}))]
+
+    return server
+
+
+async def run_server():
+    """Run the MCP server over stdio."""
+    server = create_server()
+    async with stdio_server() as (read_stream, write_stream):
+        await server.run(read_stream, write_stream, server.create_initialization_options())
 
 
 def main():
-    """Run the MCP server (stub — requires mcp package for full implementation)."""
-    print("MCP Server AKF — ready")
-    print(f"Available tools: {[t['name'] for t in TOOLS]}")
+    """Entry point for the MCP server."""
+    asyncio.run(run_server())
 
 
 if __name__ == "__main__":

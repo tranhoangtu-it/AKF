@@ -23,9 +23,8 @@ export class AKFBuilder {
     trust: number,
     opts?: Partial<Omit<Claim, "c" | "t">>
   ): this {
-    const id =
-      opts?.id || randomUUID().replace(/-/g, "").slice(0, 8);
-    this._claims.push({ c: content, t: trust, id, ...opts });
+    const claimId: string = (opts?.id as string) || randomUUID().replace(/-/g, "").slice(0, 8);
+    this._claims.push({ c: content, t: trust, ...opts, id: claimId });
     return this;
   }
 

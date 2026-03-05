@@ -2,11 +2,9 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 const anchorLinks = [
-  { href: '#workflow', label: 'Workflow' },
-  { href: '#sdk', label: 'SDK' },
-  { href: '#formats', label: 'Formats' },
-  { href: '#agents', label: 'Agents' },
-  { href: '#download', label: 'Download' },
+  { href: '#get-started', label: 'Get Started' },
+  { href: '#why-akf', label: 'Why AKF' },
+  { href: '#enterprise', label: 'Enterprise' },
 ];
 
 export default function Navbar() {
