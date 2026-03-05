@@ -111,7 +111,7 @@ export default function Hero() {
 
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
           <CopyCommand command="pip install akf" />
-          <CopyCommand command="npm install akf" />
+          <CopyCommand command="npm install akf-format" />
         </div>
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">

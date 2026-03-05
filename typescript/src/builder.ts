@@ -1,9 +1,9 @@
 /**
- * AKF v1.0 — Fluent builder API.
+ * AKF v1.1 — Fluent builder API.
  */
 
 import { randomUUID } from "node:crypto";
-import type { AKFUnit, Claim, ProvHop } from "./models.js";
+import type { AKFUnit, Claim, Evidence, ProvHop } from "./models.js";
 import { computeIntegrityHash } from "./provenance.js";
 
 /** Fluent builder for constructing AKF units. */
@@ -11,10 +11,13 @@ export class AKFBuilder {
   private _claims: Claim[] = [];
   private _by: string | undefined;
   private _agentId: string | undefined;
+  private _modelId: string | undefined;
   private _label: string | undefined;
   private _inherit: boolean | undefined;
   private _ext: boolean | undefined;
   private _ttl: number | undefined;
+  private _tools: string[] | undefined;
+  private _session: string | undefined;
   private _meta: Record<string, unknown> | undefined;
 
   /** Add a claim. */
@@ -61,6 +64,46 @@ export class AKFBuilder {
   /** Set retention period in days. */
   ttl(days: number): this {
     this._ttl = days;
+    return this;
+  }
+
+  /** Set model identifier. */
+  model(id: string): this {
+    this._modelId = id;
+    return this;
+  }
+
+  /** Set kind on the last claim. */
+  kind(kind: string): this {
+    if (this._claims.length === 0) {
+      throw new Error("No claims to set kind on — add a claim first");
+    }
+    const last = this._claims[this._claims.length - 1];
+    this._claims[this._claims.length - 1] = { ...last, kind };
+    return this;
+  }
+
+  /** Add evidence to the last claim. */
+  evidence(...items: Evidence[]): this {
+    if (this._claims.length === 0) {
+      throw new Error("No claims to add evidence to — add a claim first");
+    }
+    const last = this._claims[this._claims.length - 1];
+    const existing = last.evidence ? [...last.evidence] : [];
+    existing.push(...items);
+    this._claims[this._claims.length - 1] = { ...last, evidence: existing };
+    return this;
+  }
+
+  /** Set tools used. */
+  tools(...names: string[]): this {
+    this._tools = names;
+    return this;
+  }
+
+  /** Set session identifier. */
+  session(id: string): this {
+    this._session = id;
     return this;
   }
 
@@ -114,6 +157,9 @@ export class AKFBuilder {
       claims: this._claims,
       by: this._by,
       agent: this._agentId,
+      model: this._modelId,
+      tools: this._tools,
+      session: this._session,
       at: now,
       label: this._label,
       inherit: this._inherit,

@@ -1,5 +1,5 @@
 /**
- * AKF v1.0 — File I/O: read, write, stamp, embed, extract AKF metadata.
+ * AKF v1.1 — File I/O: read, write, stamp, embed, extract AKF metadata.
  *
  * Supports:
  * - .akf (native JSON)
@@ -236,10 +236,13 @@ export function stampFile(filepath: string, options: StampOptions = {}): AKFUnit
   } = options;
 
   const claims: Partial<Claim>[] = rawClaims.map((c) => {
-    if (typeof c === "string") {
-      return { c, t: trustScore, ai: true };
+    const base = typeof c === "string"
+      ? { c, t: trustScore, ai: true }
+      : { t: trustScore, ai: true, ...c };
+    if (model) {
+      (base as Record<string, unknown>).origin = { type: "ai", model };
     }
-    return { t: trustScore, ai: true, ...c };
+    return base;
   });
 
   // If no claims provided, create a default stamp claim

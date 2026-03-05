@@ -42,6 +42,7 @@ def add_hop(
     adds: Optional[List[str]] = None,
     drops: Optional[List[str]] = None,
     penalty: Optional[float] = None,
+    model: Optional[str] = None,
 ) -> AKF:
     """Add a new provenance hop to an existing unit. Auto-hashes."""
     existing = list(unit.prov) if unit.prov else []
@@ -60,6 +61,8 @@ def add_hop(
         hop_data["drops"] = drops
     if penalty is not None:
         hop_data["pen"] = penalty
+    if model is not None:
+        hop_data["model"] = model
 
     hop_hash = compute_hop_hash(prev_hash, hop_data)
     hop_data["h"] = hop_hash
@@ -73,6 +76,31 @@ def add_hop(
     updated = updated.model_copy(update={"integrity_hash": integrity})
 
     return updated
+
+
+def models_used(unit: AKF) -> List[str]:
+    """Collect all unique model identifiers used in a unit.
+
+    Checks unit.model, claim origins, and provenance hops.
+    """
+    models: Dict[str, None] = {}
+
+    # Unit-level model
+    if unit.model:
+        models[unit.model] = None
+
+    # Per-claim origin models
+    for claim in unit.claims:
+        if claim.origin and claim.origin.model:
+            models[claim.origin.model] = None
+
+    # Provenance hop models
+    if unit.prov:
+        for hop in unit.prov:
+            if hop.model:
+                models[hop.model] = None
+
+    return list(models.keys())
 
 
 def format_tree(unit: AKF) -> str:

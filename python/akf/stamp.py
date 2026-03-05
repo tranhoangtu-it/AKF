@@ -17,7 +17,7 @@ import re
 from datetime import datetime, timezone
 from typing import List, Optional, Union
 
-from .models import AKF, Claim, Evidence
+from .models import AKF, Claim, Evidence, Origin
 
 
 # ---------------------------------------------------------------------------
@@ -136,6 +136,8 @@ def stamp(
     claim_kwargs.update(kwargs)
     if evidence_objects:
         claim_kwargs["evidence"] = evidence_objects
+    if model:
+        claim_kwargs["origin"] = Origin(type="ai", model=model)
 
     claim = Claim(content=content, confidence=confidence, **claim_kwargs)
 
@@ -202,6 +204,8 @@ def stamp_file(
         }
         if evidence_objects and not claim_list:
             claim_kwargs["evidence"] = evidence_objects
+        if model:
+            claim_kwargs["origin"] = Origin(type="ai", model=model)
         claim_list.append(
             Claim(content=text, confidence=trust_score, **claim_kwargs)
         )

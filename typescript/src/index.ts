@@ -6,7 +6,12 @@
  */
 
 // Models
-export type { AKFUnit, Claim, Evidence, Fidelity, ProvHop } from "./models.js";
+export type {
+  AKFUnit, Claim, Evidence, Fidelity, ProvHop,
+  // v1.1 types
+  GenerationParams, Origin, MadeBy, Review, SourceDetail,
+  ReasoningChain, Annotation, Freshness, CostMetadata, AgentProfile,
+} from "./models.js";
 export {
   normalizeClaim,
   normalizeProvHop,
@@ -43,6 +48,7 @@ export {
   computeIntegrityHash,
   validateChain,
   addHop,
+  modelsUsed,
   formatTree,
 } from "./provenance.js";
 

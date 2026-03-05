@@ -44,9 +44,12 @@ print(result.recommendations)  # actionable next steps
 
 # Run all 10 security detection classes
 report = akf.run_all_detections("report.pdf")
-print(report.triggered_count)  # number of detections fired`;
+print(report.triggered_count)  # number of detections fired
 
-const typescriptCode = `import { stampFile, read, audit, stream, runAllDetections } from 'akf';
+# See every model that touched this unit
+print(akf.models_used(unit))   # ['gpt-4o']`;
+
+const typescriptCode = `import { stampFile, read, audit, stream, runAllDetections, modelsUsed } from 'akf-format';
 
 // Stamp any file with trust metadata
 const unit = stampFile('report.pdf', {
@@ -74,7 +77,10 @@ console.log(result.score);       // 0.0-1.0
 
 // Run all 10 security detection classes
 const report = runAllDetections(loaded);
-console.log(report.results.length);   // 10 detection classes checked`;
+console.log(report.results.length);   // 10 detection classes checked
+
+// See every model that touched this unit
+console.log(modelsUsed(loaded));       // ['gpt-4o']`;
 
 interface Feature {
   icon: React.ReactNode;

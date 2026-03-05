@@ -1,10 +1,115 @@
 /**
- * AKF v1.0 — TypeScript interfaces for Agent Knowledge Format.
+ * AKF v1.1 — TypeScript interfaces for Agent Knowledge Format.
  *
  * Field names use compact form (c, t, src, etc.) as the canonical wire format.
  * Descriptive aliases (content, confidence, source, etc.) are accepted on input
  * via the normalize() functions.
  */
+
+// ---------------------------------------------------------------------------
+// v1.1 New interfaces
+// ---------------------------------------------------------------------------
+
+/** Parameters used during AI generation. */
+export interface GenerationParams {
+  temperature?: number;
+  topP?: number;
+  maxTokens?: number;
+  tokensInput?: number;
+  tokensOutput?: number;
+  tokensTotal?: number;
+  costUsd?: number;
+  latencyMs?: number;
+  toolsUsed?: string[];
+  [key: string]: unknown;
+}
+
+/** Origin tracking — who/what produced this content and how. */
+export interface Origin {
+  type: string;
+  model?: string;
+  version?: string;
+  provider?: string;
+  parameters?: GenerationParams;
+  [key: string]: unknown;
+}
+
+/** Authorship entry. */
+export interface MadeBy {
+  actor: string;
+  role: string;
+  at?: string;
+  [key: string]: unknown;
+}
+
+/** A review verdict on a claim or unit. */
+export interface Review {
+  reviewer: string;
+  verdict: string;
+  comment?: string;
+  at?: string;
+  [key: string]: unknown;
+}
+
+/** Detailed source information for grounded claims. */
+export interface SourceDetail {
+  uri: string;
+  retrievedAt?: string;
+  hash?: string;
+  page?: number;
+  section?: string;
+  [key: string]: unknown;
+}
+
+/** Explainability chain for AI-generated claims. */
+export interface ReasoningChain {
+  steps: string[];
+  conclusion?: string;
+  model?: string;
+  tokenCount?: number;
+  [key: string]: unknown;
+}
+
+/** Free-form annotation. */
+export interface Annotation {
+  key: string;
+  value: string;
+  scope?: string;
+  at?: string;
+  [key: string]: unknown;
+}
+
+/** Time-sensitivity metadata. */
+export interface Freshness {
+  retrievedAt?: string;
+  validUntil?: string;
+  refreshUrl?: string;
+  staleAfterHours?: number;
+  [key: string]: unknown;
+}
+
+/** LLM cost tracking metadata. */
+export interface CostMetadata {
+  inputTokens?: number;
+  outputTokens?: number;
+  model?: string;
+  costUsd?: number;
+  [key: string]: unknown;
+}
+
+/** Profile of an AI agent in the provenance chain. */
+export interface AgentProfile {
+  id: string;
+  name?: string;
+  version?: string;
+  capabilities?: string[];
+  trustCeiling?: number;
+  [key: string]: unknown;
+}
+
+// ---------------------------------------------------------------------------
+// Core interfaces
+// ---------------------------------------------------------------------------
 
 /** Multi-resolution fidelity for a claim. */
 export interface Fidelity {
@@ -66,6 +171,31 @@ export interface Claim {
   kind?: string;
   /** Evidence supporting the claim */
   evidence?: Evidence[];
+  // v1.1 fields
+  /** Origin tracking */
+  origin?: Origin;
+  /** Review verdicts */
+  reviews?: Review[];
+  /** Detailed source info */
+  sourceDetail?: SourceDetail;
+  /** Reasoning chain */
+  reasoning?: ReasoningChain;
+  /** Freshness metadata */
+  freshness?: Freshness;
+  /** Annotations */
+  annotations?: Annotation[];
+  /** Cost metadata */
+  cost?: CostMetadata;
+  /** ID of claim this supersedes */
+  supersedes?: string;
+  /** Hard expiry timestamp */
+  expiresAt?: string;
+  /** Verification timestamp */
+  verifiedAt?: string;
+  /** Claim IDs this depends on */
+  dependsOn?: string[];
+  /** Relationship type */
+  relationship?: string;
   /** Extensible: unknown fields */
   [key: string]: unknown;
 }
@@ -88,6 +218,19 @@ export interface ProvHop {
   adds?: string[];
   /** Claim IDs dropped/rejected */
   drops?: string[];
+  // v1.1 fields
+  /** Model used for this hop */
+  model?: string;
+  /** Hash of the input */
+  inputHash?: string;
+  /** Hash of the output */
+  outputHash?: string;
+  /** Agent profile */
+  agentProfile?: AgentProfile;
+  /** Duration in milliseconds */
+  durationMs?: number;
+  /** Tool calls made */
+  toolCalls?: string[];
   /** Extensible: unknown fields */
   [key: string]: unknown;
 }
@@ -126,6 +269,23 @@ export interface AKFUnit {
   hash?: string;
   /** Free-form metadata */
   meta?: Record<string, unknown>;
+  // v1.1 fields
+  /** Authorship chain */
+  madeBy?: MadeBy[];
+  /** Review verdicts */
+  reviews?: Review[];
+  /** Security metadata */
+  security?: Record<string, unknown>;
+  /** Compliance metadata */
+  compliance?: Record<string, unknown>;
+  /** Cost metadata */
+  cost?: CostMetadata;
+  /** Annotations */
+  annotations?: Annotation[];
+  /** Schema version */
+  schemaVersion?: string;
+  /** Parent unit ID */
+  parentId?: string;
   /** Extensible: unknown fields */
   [key: string]: unknown;
 }
@@ -146,6 +306,12 @@ const CLAIM_ALIASES: Record<string, string> = {
   decay_half_life: "decay",
   expires: "exp",
   contradicts: "contra",
+  // v1.1
+  source_detail: "sourceDetail",
+  expires_at: "expiresAt",
+  verified_at: "verifiedAt",
+  depends_on: "dependsOn",
+  supersedes_id: "supersedes",
 };
 
 /** Maps descriptive ProvHop field names to compact names. */
@@ -157,6 +323,12 @@ const PROVHOP_ALIASES: Record<string, string> = {
   penalty: "pen",
   claims_added: "adds",
   claims_removed: "drops",
+  // v1.1
+  input_hash: "inputHash",
+  output_hash: "outputHash",
+  agent_profile: "agentProfile",
+  duration_ms: "durationMs",
+  tool_calls: "toolCalls",
 };
 
 /** Maps descriptive AKFUnit field names to compact names. */
@@ -169,6 +341,10 @@ const UNIT_ALIASES: Record<string, string> = {
   allow_external: "ext",
   integrity_hash: "hash",
   provenance: "prov",
+  // v1.1
+  made_by: "madeBy",
+  schema_version: "schemaVersion",
+  parent_id: "parentId",
 };
 
 /** Remap keys in an object using an alias map. Unknown keys pass through. */

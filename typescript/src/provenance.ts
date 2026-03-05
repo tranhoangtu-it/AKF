@@ -1,5 +1,5 @@
 /**
- * AKF v1.0 — Provenance chain management and integrity hashing.
+ * AKF v1.1 — Provenance chain management and integrity hashing.
  */
 
 import { createHash } from "node:crypto";
@@ -55,6 +55,7 @@ export function addHop(
     adds?: string[];
     drops?: string[];
     penalty?: number;
+    model?: string;
   }
 ): AKFUnit {
   const existing = unit.prov ? [...unit.prov] : [];
@@ -77,6 +78,9 @@ export function addHop(
   if (opts?.penalty !== undefined) {
     hopData["pen"] = opts.penalty;
   }
+  if (opts?.model) {
+    hopData["model"] = opts.model;
+  }
 
   const hopHash = computeHopHash(prevHash, hopData);
   hopData["h"] = hopHash;
@@ -91,6 +95,37 @@ export function addHop(
   updated.hash = integrity;
 
   return updated;
+}
+
+/**
+ * Collect all unique model identifiers used in a unit.
+ * Checks unit.model, claim origins, and provenance hops.
+ */
+export function modelsUsed(unit: AKFUnit): string[] {
+  const models = new Set<string>();
+
+  // Unit-level model
+  if (unit.model) {
+    models.add(unit.model);
+  }
+
+  // Per-claim origin models
+  for (const claim of unit.claims) {
+    if (claim.origin?.model) {
+      models.add(claim.origin.model);
+    }
+  }
+
+  // Provenance hop models
+  if (unit.prov) {
+    for (const hop of unit.prov) {
+      if (hop.model) {
+        models.add(hop.model);
+      }
+    }
+  }
+
+  return [...models];
 }
 
 /**

@@ -314,7 +314,7 @@ def to_akf(filepath: str, output: str) -> None:
 
     # Compute and set integrity hash
     integrity = compute_integrity_hash(unit)
-    unit = unit.model_copy(update={"hash": integrity})
+    unit = unit.model_copy(update={"integrity_hash": integrity})
 
     unit.save(output)
 
@@ -677,7 +677,7 @@ def _enrich_to_akf(filepath: str, output: str, agent: Optional[str] = None) -> N
     unit = unit.model_copy(update={"prov": [hop]})
 
     integrity = compute_integrity_hash(unit)
-    unit = unit.model_copy(update={"hash": integrity})
+    unit = unit.model_copy(update={"integrity_hash": integrity})
 
     unit.save(output)
 

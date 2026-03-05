@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/format-.akf-blue?style=for-the-badge" alt="AKF Format" />
   <img src="https://img.shields.io/pypi/v/akf?style=for-the-badge&color=blue" alt="PyPI" />
-  <img src="https://img.shields.io/npm/v/akf?style=for-the-badge&color=blue" alt="npm" />
+  <img src="https://img.shields.io/npm/v/akf-format?style=for-the-badge&color=blue" alt="npm" />
   <img src="https://img.shields.io/github/license/HMAKT99/AKF?style=for-the-badge" alt="License" />
   <img src="https://img.shields.io/github/stars/HMAKT99/AKF?style=for-the-badge" alt="Stars" />
 </p>
@@ -43,7 +43,7 @@ AI generates content → AKF stamps trust metadata → Anyone can verify it
 
 ```bash
 pip install akf    # Python
-npm install akf    # TypeScript / Node.js
+npm install akf-format    # TypeScript / Node.js
 ```
 
 ```python

@@ -34,7 +34,7 @@ pip install akf
 
 TypeScript / Node.js:
 ```
-npm install akf
+npm install akf-format
 ```
 
 ## For AI Agents
@@ -103,7 +103,7 @@ akf.embed("report.docx", classification="confidential")
 
 TypeScript:
 ```typescript
-import { create, AKFBuilder, effectiveTrust, fromJSON, toDescriptive } from 'akf';
+import { create, AKFBuilder, effectiveTrust, fromJSON, toDescriptive } from 'akf-format';
 
 const unit = create("Revenue grew 12% YoY", 0.95, { src: "SEC filing", tier: 1 });
 

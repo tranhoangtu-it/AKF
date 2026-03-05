@@ -92,6 +92,7 @@ _COST_METADATA_COMPACT = {
 _AGENT_PROFILE_COMPACT = {
     "id": "id",
     "name": "name",
+    "model": "model",
     "version": "ver",
     "capabilities": "caps",
     "trust_ceiling": "ceil",
@@ -117,6 +118,7 @@ _PROVHOP_COMPACT = {
     "penalty": "pen",
     "claims_added": "adds",
     "claims_removed": "drops",
+    "model": "m",
     "input_hash": "in_h",
     "output_hash": "out_h",
     "duration_ms": "dur",
@@ -380,6 +382,7 @@ class AgentProfile(BaseModel):
 
     id: str
     name: Optional[str] = None
+    model: Optional[str] = None
     version: Optional[str] = Field(None, validation_alias=AliasChoices("ver", "version"))
     capabilities: Optional[List[str]] = Field(
         None, validation_alias=AliasChoices("caps", "capabilities")
@@ -496,6 +499,7 @@ class ProvHop(BaseModel):
         None, validation_alias=AliasChoices("drops", "claims_removed")
     )
     # v1.1 fields
+    model: Optional[str] = Field(None, validation_alias=AliasChoices("m", "model"))
     input_hash: Optional[str] = Field(None, validation_alias=AliasChoices("in_h", "input_hash"))
     output_hash: Optional[str] = Field(None, validation_alias=AliasChoices("out_h", "output_hash"))
     agent_profile: Optional[AgentProfile] = None

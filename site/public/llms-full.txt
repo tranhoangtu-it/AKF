@@ -909,7 +909,7 @@ akf.universal.create_sidecar("video.mp4", metadata_dict)
 ### Install
 
 ```bash
-npm install akf
+npm install akf-format
 ```
 
 ES Module, TypeScript 5.7+.
@@ -917,7 +917,7 @@ ES Module, TypeScript 5.7+.
 ### Core Functions
 
 ```typescript
-import { create, createMulti, validate, toJSON, fromJSON, toDescriptive } from 'akf';
+import { create, createMulti, validate, toJSON, fromJSON, toDescriptive } from 'akf-format';
 
 // Create single-claim unit
 const unit = create("Claim text", 0.95, { src: "Source", tier: 1 });
@@ -950,7 +950,7 @@ const result = validate(unit);
 ### Normalization
 
 ```typescript
-import { normalizeClaim, normalizeUnit, toDescriptiveClaim } from 'akf';
+import { normalizeClaim, normalizeUnit, toDescriptiveClaim } from 'akf-format';
 
 // Normalize descriptive to compact (for processing)
 const claim = normalizeClaim({ content: "test", confidence: 0.8, source: "SEC" });
@@ -971,7 +971,7 @@ const desc = toDescriptiveClaim({ c: "test", t: 0.8, src: "SEC", ai: true });
 ### Types
 
 ```typescript
-import type { AKFUnit, Claim, ProvHop, Fidelity, ValidationResult, TrustResult } from 'akf';
+import type { AKFUnit, Claim, ProvHop, Fidelity, ValidationResult, TrustResult } from 'akf-format';
 
 interface AKFUnit {
   v: string;
@@ -1013,7 +1013,7 @@ interface Claim {
 ### Builder
 
 ```typescript
-import { AKFBuilder } from 'akf';
+import { AKFBuilder } from 'akf-format';
 
 const unit = new AKFBuilder()
   .claim("Revenue grew 12%", 0.98, { src: "SEC Filing", tier: 1 })
@@ -1031,7 +1031,7 @@ const unit = new AKFBuilder()
 ### Trust
 
 ```typescript
-import { effectiveTrust, AUTHORITY_WEIGHTS, DECAY_PRESETS } from 'akf';
+import { effectiveTrust, AUTHORITY_WEIGHTS, DECAY_PRESETS } from 'akf-format';
 
 const result = effectiveTrust(claim, 30, -0.05);
 // result.score, result.decision ("ACCEPT"|"LOW"|"REJECT")
@@ -1043,7 +1043,7 @@ const result = effectiveTrust(claim, 30, -0.05);
 ```typescript
 import {
   addHop, validateChain, computeIntegrityHash, computeHopHash, formatTree
-} from 'akf';
+} from 'akf-format';
 
 const updated = addHop(unit, "reviewer@corp.com", "reviewed");
 const withPenalty = addHop(unit, "agent-x", "transformed", { penalty: -0.03 });
@@ -1056,7 +1056,7 @@ console.log(formatTree(unit));
 ### Security
 
 ```typescript
-import { labelRank, validateInheritance, canShareExternal, inheritLabel, HIERARCHY } from 'akf';
+import { labelRank, validateInheritance, canShareExternal, inheritLabel, HIERARCHY } from 'akf-format';
 
 labelRank("confidential");                    // 2
 validateInheritance(parentUnit, childUnit);    // boolean
@@ -1067,7 +1067,7 @@ inheritLabel(parentUnit);                     // { label, inherit, ext }
 ### Transformer
 
 ```typescript
-import { AKFTransformer } from 'akf';
+import { AKFTransformer } from 'akf-format';
 
 const derived = new AKFTransformer(parentUnit)
   .filter(0.6)
@@ -1254,7 +1254,7 @@ print(f"Trust: {report.overall_trust:.2f}, AI claims: {report.ai_claim_count}")
 ### 6. TypeScript: Building with Normalization
 
 ```typescript
-import { AKFBuilder, validate, effectiveTrust, fromJSON, toDescriptive } from 'akf';
+import { AKFBuilder, validate, effectiveTrust, fromJSON, toDescriptive } from 'akf-format';
 
 // Build a unit
 const unit = new AKFBuilder()

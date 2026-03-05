@@ -29,7 +29,7 @@ from .trust import (
     AUTHORITY_WEIGHTS, calibrated_trust, resolve_conflict, trust_summary,
     is_expired, freshness_status,
 )
-from .provenance import add_hop, format_tree, compute_integrity_hash
+from .provenance import add_hop, format_tree, compute_integrity_hash, models_used
 from .security import (
     validate_inheritance, can_share_external, inherit_label, security_score,
     purview_signals, detect_laundering, SecurityScore, SecurityReport,
@@ -221,6 +221,7 @@ __all__ = [
     "create_multi",
     "effective_trust",
     "format_tree",
+    "models_used",
     "inherit_label",
     "load",
     "loads",

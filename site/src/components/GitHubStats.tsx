@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 const GITHUB_REPO = 'HMAKT99/AKF';
-const NPM_PACKAGE = 'akf';
+const NPM_PACKAGE = 'akf-format';
 const PYPI_PACKAGE = 'akf';
 
 interface Stats {

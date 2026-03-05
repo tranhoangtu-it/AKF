@@ -1,5 +1,5 @@
 {
-  "name": "akf",
+  "name": "akf-format",
   "version": "1.0.0",
   "description": "AKF — Agent Knowledge Format SDK for TypeScript",
   "type": "module",
