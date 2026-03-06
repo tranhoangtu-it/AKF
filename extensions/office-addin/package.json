@@ -1,0 +1,22 @@
+{
+  "name": "akf-office-addin",
+  "version": "1.0.0",
+  "description": "AKF Trust Metadata add-in for Microsoft Office",
+  "scripts": {
+    "build": "webpack --mode production",
+    "dev": "webpack serve --mode development",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@microsoft/office-js": "^1.1.0"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^12.0.0",
+    "html-webpack-plugin": "^5.6.0",
+    "ts-loader": "^9.5.0",
+    "typescript": "^5.4.0",
+    "webpack": "^5.90.0",
+    "webpack-cli": "^5.1.0",
+    "webpack-dev-server": "^5.0.0"
+  }
+}

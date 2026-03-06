@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Google Sans', Roboto, Arial, sans-serif;
+      background: #1e1e2e;
+      color: #cdd6f4;
+      padding: 16px;
+      font-size: 13px;
+    }
+    .header { margin-bottom: 16px; }
+    .header h2 { font-size: 16px; font-weight: 500; margin-bottom: 4px; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      text-transform: uppercase;
+      background: #313244;
+      color: #a6adc8;
+    }
+    .trust-score {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0;
+    }
+    .trust-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .section { margin-top: 16px; }
+    .section-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: #a6adc8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .claim {
+      padding: 8px 0;
+      border-bottom: 1px solid #313244;
+    }
+    .claim-content { color: #cdd6f4; margin-bottom: 4px; }
+    .claim-meta { display: flex; gap: 8px; align-items: center; }
+    .claim-meta span { font-size: 11px; }
+    .confidence { font-weight: 600; }
+    .verified { color: #a6e3a1; }
+    .ai-tag { color: #f9e2af; }
+    .risk { color: #f38ba8; font-size: 11px; margin-top: 2px; }
+    .prov-hop {
+      padding: 6px 0 6px 12px;
+      border-left: 2px solid #313244;
+      margin-left: 4px;
+    }
+    .prov-actor { font-weight: 500; color: #cdd6f4; }
+    .prov-time { font-size: 11px; color: #6c7086; }
+    .audit-status {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    .check { padding: 3px 0; }
+    .rec { padding: 2px 0; color: #bac2de; font-size: 12px; }
+    .empty {
+      text-align: center;
+      padding: 40px 16px;
+      color: #6c7086;
+    }
+    .btn {
+      background: #89b4fa;
+      color: #1e1e2e;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 500;
+      margin-top: 12px;
+    }
+    .btn:hover { background: #74c7ec; }
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #313244;
+      padding-bottom: 8px;
+    }
+    .tab {
+      background: none;
+      border: none;
+      color: #6c7086;
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-family: inherit;
+    }
+    .tab.active { background: #313244; color: #cdd6f4; }
+    .tab:hover { color: #bac2de; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div id="loading">Loading...</div>
+  <div id="content" class="hidden"></div>
+  <div id="empty-state" class="hidden">
+    <div class="empty">
+      <div style="margin-bottom:8px">No AKF metadata found</div>
+      <div style="font-size:12px;margin-bottom:16px">This document doesn't have trust metadata yet.</div>
+      <button class="btn" onclick="doEmbed()">Embed Metadata</button>
+    </div>
+  </div>
+
+  <script>
+    function trustColor(conf) {
+      if (conf >= 0.8) return '#a6e3a1';
+      if (conf >= 0.5) return '#f9e2af';
+      return '#f38ba8';
+    }
+
+    function trustLabel(conf) {
+      if (conf >= 0.8) return 'High';
+      if (conf >= 0.5) return 'Medium';
+      return 'Low';
+    }
+
+    function loadData() {
+      google.script.run
+        .withSuccessHandler(render)
+        .withFailureHandler(function() {
+          document.getElementById('loading').textContent = 'Error loading metadata';
+        })
+        .getMetadataForSidebar();
+    }
+
+    function render(data) {
+      document.getElementById('loading').classList.add('hidden');
+
+      if (!data.found) {
+        document.getElementById('empty-state').classList.remove('hidden');
+        return;
+      }
+
+      var meta = data.metadata;
+      var audit = data.audit;
+      var claims = meta.claims || [];
+      var prov = meta.provenance || [];
+
+      // Compute overall trust
+      var trust = 0;
+      if (claims.length > 0) {
+        var sum = 0;
+        for (var i = 0; i < claims.length; i++) sum += (claims[i].confidence || 0);
+        trust = sum / claims.length;
+      }
+
+      var html = '';
+
+      // Tabs
+      html += '<div class="tabs">';
+      html += '<button class="tab active" onclick="switchTab(this,\'overview\')">Overview</button>';
+      html += '<button class="tab" onclick="switchTab(this,\'claims\')">Claims</button>';
+      html += '<button class="tab" onclick="switchTab(this,\'provenance\')">Provenance</button>';
+      html += '<button class="tab" onclick="switchTab(this,\'audit\')">Audit</button>';
+      html += '</div>';
+
+      // Overview
+      html += '<div id="view-overview">';
+      html += '<div class="header">';
+      html += '<h2>AKF Trust Metadata</h2>';
+      if (meta.classification) {
+        html += '<span class="badge">' + meta.classification + '</span>';
+      }
+      html += '</div>';
+      html += '<div class="trust-score">';
+      html += '<span class="trust-dot" style="background:' + trustColor(trust) + '"></span>';
+      html += '<span>Trust: ' + trust.toFixed(2) + ' (' + trustLabel(trust) + ')</span>';
+      html += '</div>';
+      html += '<div style="color:#6c7086">' + claims.length + ' claim(s)</div>';
+      if (meta.author) html += '<div style="color:#6c7086;margin-top:4px">Author: ' + meta.author + '</div>';
+      html += '</div>';
+
+      // Claims
+      html += '<div id="view-claims" class="hidden">';
+      html += '<div class="section-title">Claims</div>';
+      if (claims.length === 0) {
+        html += '<div style="color:#6c7086">No claims found.</div>';
+      } else {
+        for (var j = 0; j < claims.length; j++) {
+          var c = claims[j];
+          var color = trustColor(c.confidence);
+          html += '<div class="claim">';
+          html += '<div class="claim-content">' + c.content + '</div>';
+          html += '<div class="claim-meta">';
+          html += '<span class="confidence" style="color:' + color + '">' + c.confidence.toFixed(2) + '</span>';
+          if (c.source) html += '<span style="color:#a6adc8">' + c.source + '</span>';
+          if (c.verified) html += '<span class="verified">verified</span>';
+          if (c.ai_generated) html += '<span class="ai-tag">AI</span>';
+          html += '</div>';
+          if (c.risk) html += '<div class="risk">Risk: ' + c.risk + '</div>';
+          html += '</div>';
+        }
+      }
+      html += '</div>';
+
+      // Provenance
+      html += '<div id="view-provenance" class="hidden">';
+      html += '<div class="section-title">Provenance</div>';
+      if (prov.length === 0) {
+        html += '<div style="color:#6c7086">No provenance recorded.</div>';
+      } else {
+        for (var k = 0; k < prov.length; k++) {
+          var hop = prov[k];
+          html += '<div class="prov-hop">';
+          html += '<div class="prov-actor">' + hop.actor + ' &mdash; ' + hop.action + '</div>';
+          html += '<div class="prov-time">' + (hop.timestamp || hop.at || '') + '</div>';
+          html += '</div>';
+        }
+      }
+      html += '</div>';
+
+      // Audit
+      html += '<div id="view-audit" class="hidden">';
+      var statusColor = audit.compliant ? '#a6e3a1' : '#f38ba8';
+      var statusText = audit.compliant ? 'COMPLIANT' : 'NON-COMPLIANT';
+      html += '<div class="audit-status" style="color:' + statusColor + '">' + statusText;
+      html += ' <span style="color:#6c7086;font-size:13px;font-weight:normal">(score: ' + audit.score.toFixed(2) + ')</span>';
+      html += '</div>';
+      for (var m = 0; m < audit.checks.length; m++) {
+        var chk = audit.checks[m];
+        var icon = chk.passed ? '\u2705' : '\u274c';
+        html += '<div class="check">' + icon + ' ' + chk.check.replace(/_/g, ' ') + '</div>';
+      }
+      if (audit.recommendations.length > 0) {
+        html += '<div style="margin-top:12px" class="section-title">Recommendations</div>';
+        for (var n = 0; n < audit.recommendations.length; n++) {
+          html += '<div class="rec">\u2022 ' + audit.recommendations[n] + '</div>';
+        }
+      }
+      html += '</div>';
+
+      document.getElementById('content').innerHTML = html;
+      document.getElementById('content').classList.remove('hidden');
+    }
+
+    function switchTab(btn, viewId) {
+      var tabs = document.querySelectorAll('.tab');
+      for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+      btn.classList.add('active');
+
+      var views = ['overview', 'claims', 'provenance', 'audit'];
+      for (var j = 0; j < views.length; j++) {
+        var el = document.getElementById('view-' + views[j]);
+        if (el) {
+          if (views[j] === viewId) el.classList.remove('hidden');
+          else el.classList.add('hidden');
+        }
+      }
+    }
+
+    function doEmbed() {
+      google.script.run
+        .withSuccessHandler(function() { loadData(); })
+        .embedMetadata();
+    }
+
+    // Load on init
+    loadData();
+  </script>
+</body>
+</html>

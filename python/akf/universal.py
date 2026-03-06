@@ -94,7 +94,7 @@ def _register_builtin_formats() -> None:
         _FORMAT_REGISTRY[ext] = _image_factory
 
     # Email
-    for ext in ("eml", "msg"):
+    for ext in ("eml",):
         _FORMAT_REGISTRY[ext] = _email_factory
 
 
@@ -469,11 +469,11 @@ def info(filepath: str) -> str:
     claims = meta.get("claims", [])
     lines.append("Claims: {}".format(len(claims)))
 
-    ai_claims = [c for c in claims if c.get("ai")]
+    ai_claims = [c for c in claims if c.get("ai") or c.get("ai_generated")]
     if ai_claims:
         lines.append("  AI-generated: {}".format(len(ai_claims)))
 
-    verified = [c for c in claims if c.get("ver")]
+    verified = [c for c in claims if c.get("ver") or c.get("verified")]
     if verified:
         lines.append("  Verified: {}".format(len(verified)))
 

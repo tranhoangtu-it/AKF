@@ -1,4 +1,4 @@
-# AKF — AI Knowledge Format
+# AKF — Agent Knowledge Format
 
 > Trust metadata for every file AI touches. AKF is to AI-generated content what EXIF is to photos.
 

@@ -17,7 +17,7 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 text-text-primary font-semibold tracking-tight">
           <span className="text-accent font-mono font-bold text-lg">.akf</span>
-          <span className="text-sm text-text-secondary hidden sm:inline">AI Knowledge Format</span>
+          <span className="text-sm text-text-secondary hidden sm:inline">Agent Knowledge Format</span>
         </Link>
         <div className="flex items-center gap-6">
           {anchorLinks.map((link) => (

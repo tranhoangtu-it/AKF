@@ -13,7 +13,7 @@ export function activate(context: vscode.ExtensionContext) {
             if (trustMatch) {
                 const score = parseFloat(trustMatch[1]);
                 let level: string;
-                if (score >= 0.7) level = 'HIGH - Acceptable for use';
+                if (score >= 0.7) level = 'ACCEPT - Acceptable for use';
                 else if (score >= 0.4) level = 'LOW - Use with caution';
                 else level = 'REJECT - Do not use without verification';
                 return new vscode.Hover(`**Trust Score: ${score}**\n\n${level}`);
@@ -59,7 +59,43 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    context.subscriptions.push(hoverProvider, validateCmd);
+    // Register inspect command
+    const inspectCmd = vscode.commands.registerCommand('akf.inspect', () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showWarningMessage('No active editor');
+            return;
+        }
+
+        try {
+            const json = JSON.parse(editor.document.getText());
+            const claims = json.claims;
+            if (!Array.isArray(claims) || claims.length === 0) {
+                vscode.window.showWarningMessage('No claims found in this AKF file');
+                return;
+            }
+
+            const lines: string[] = [];
+            for (const claim of claims) {
+                const content = claim.c || claim.content || '(no content)';
+                const trust = claim.t ?? claim.confidence ?? '?';
+                const src = claim.src || claim.source || 'unspecified';
+                lines.push(`[${trust}] ${content} (source: ${src})`);
+            }
+
+            const channel = vscode.window.createOutputChannel('AKF Inspector');
+            channel.clear();
+            channel.appendLine(`AKF Inspect: ${claims.length} claim(s)\n`);
+            for (const line of lines) {
+                channel.appendLine(line);
+            }
+            channel.show();
+        } catch {
+            vscode.window.showErrorMessage('Invalid JSON');
+        }
+    });
+
+    context.subscriptions.push(hoverProvider, validateCmd, inspectCmd);
 }
 
 export function deactivate() {}

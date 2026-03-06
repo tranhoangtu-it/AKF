@@ -7,13 +7,26 @@ import type { AKFUnit, ProvHop } from "./models.js";
 import { stripNulls } from "./core.js";
 
 /**
+ * Recursively sort all keys for canonical JSON serialization.
+ */
+function canonicalStringify(obj: unknown): string {
+  if (obj === null || obj === undefined) return JSON.stringify(obj);
+  if (Array.isArray(obj)) return "[" + obj.map(canonicalStringify).join(",") + "]";
+  if (typeof obj === "object") {
+    const sorted = Object.keys(obj as Record<string, unknown>).sort();
+    return "{" + sorted.map(k => JSON.stringify(k) + ":" + canonicalStringify((obj as Record<string, unknown>)[k])).join(",") + "}";
+  }
+  return JSON.stringify(obj);
+}
+
+/**
  * Compute SHA-256 hash for a provenance hop, chained to previous.
  */
 export function computeHopHash(
   previousHash: string | null,
   hop: Record<string, unknown>
 ): string {
-  let payload = JSON.stringify(hop, Object.keys(hop).sort());
+  let payload = canonicalStringify(hop);
   if (previousHash) {
     payload = previousHash + "|" + payload;
   }
@@ -27,7 +40,7 @@ export function computeHopHash(
 export function computeIntegrityHash(unit: AKFUnit): string {
   const d = stripNulls({ ...unit });
   delete (d as Record<string, unknown>)["hash"];
-  const payload = JSON.stringify(d, Object.keys(d).sort());
+  const payload = canonicalStringify(d);
   const digest = createHash("sha256").update(payload, "utf-8").digest("hex");
   return `sha256:${digest}`;
 }

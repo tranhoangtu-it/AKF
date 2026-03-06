@@ -1,4 +1,4 @@
-# AKF — AI Knowledge Format: Complete Reference
+# AKF — Agent Knowledge Format: Complete Reference
 
 > Trust metadata for every file AI touches. AKF is to AI-generated content what EXIF is to photos.
 
@@ -1285,6 +1285,6 @@ console.log(JSON.stringify(readable, null, 2));
 
 - GitHub: https://github.com/HMAKT99/AKF
 - Spec: https://github.com/HMAKT99/AKF/blob/main/spec/akf-v1.0-spec.md
-- JSON Schema: https://github.com/HMAKT99/AKF/blob/main/spec/akf-v1.0.schema.json
+- JSON Schema: https://github.com/HMAKT99/AKF/blob/main/spec/akf-v1.1.schema.json
 - Concise summary: https://akf.dev/llms.txt
 - License: MIT

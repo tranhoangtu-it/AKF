@@ -1,46 +1,72 @@
-import { describe, it, expect, afterEach } from "vitest";
-import { readFileSync, writeFileSync, unlinkSync, existsSync } from "node:fs";
-import { stampFile, read, extract, embed, scan, create } from "../src/index.js";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { mkdtempSync, writeFileSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import {
+  stampFile,
+  read,
+  extract,
+  embed,
+  scan,
+  create,
+  createMulti,
+  toJSON,
+} from "../src/index.js";
 
-const TMP_AKF = "/tmp/test-akf-file.akf";
-const TMP_JSON = "/tmp/test-akf-file.json";
-const TMP_MD = "/tmp/test-akf-file.md";
-const TMP_HTML = "/tmp/test-akf-file.html";
-const TMP_TXT = "/tmp/test-akf-file.txt";
+let tmpDir: string;
 
-function cleanup(...files: string[]) {
-  for (const f of files) {
-    if (existsSync(f)) unlinkSync(f);
-    // Also cleanup sidecar
-    if (existsSync(f + ".akf.json")) unlinkSync(f + ".akf.json");
-  }
-}
-
-afterEach(() => {
-  cleanup(TMP_AKF, TMP_JSON, TMP_MD, TMP_HTML, TMP_TXT);
+beforeEach(() => {
+  tmpDir = mkdtempSync(join(tmpdir(), "akf-test-"));
 });
 
+afterEach(() => {
+  rmSync(tmpDir, { recursive: true, force: true });
+});
+
+// ---------------------------------------------------------------------------
+// stampFile
+// ---------------------------------------------------------------------------
+
 describe("stampFile", () => {
-  it("stamps a .akf file", () => {
-    const unit = stampFile(TMP_AKF, {
-      model: "gpt-4o",
-      claims: ["Revenue was $4.2B"],
-      trustScore: 0.95,
-    });
-    expect(unit.claims.length).toBe(1);
-    expect(unit.claims[0].t).toBe(0.95);
+  it("should stamp a .akf file and read it back", () => {
+    const filepath = join(tmpDir, "test.akf");
+    const unit = stampFile(filepath, { claims: ["AI generated content"], trustScore: 0.85 });
+    expect(unit.v).toBe("1.0");
+    expect(unit.claims.length).toBeGreaterThanOrEqual(1);
+    expect(unit.claims[0].t).toBe(0.85);
 
     // Read it back
-    const loaded = read(TMP_AKF);
-    expect(loaded.claims.length).toBe(1);
-    expect(loaded.claims[0].c).toBe("Revenue was $4.2B");
+    const loaded = read(filepath);
+    expect(loaded.v).toBe("1.0");
+    expect(loaded.claims.length).toBe(unit.claims.length);
   });
 
-  it("stamps with evidence", () => {
-    const unit = stampFile(TMP_AKF, {
-      agent: "claude-code",
-      claims: ["Fixed auth bug"],
-      evidence: ["42/42 tests passed", "mypy: 0 errors"],
+  it("should set origin when model is provided", () => {
+    const filepath = join(tmpDir, "test.akf");
+    const unit = stampFile(filepath, {
+      model: "gpt-4o",
+      claims: ["Model output"],
+    });
+    // Claims should have origin set
+    expect((unit.claims[0] as Record<string, unknown>).origin).toBeDefined();
+    const origin = (unit.claims[0] as Record<string, unknown>).origin as Record<string, unknown>;
+    expect(origin.model).toBe("gpt-4o");
+  });
+
+  it("should create default claim with origin when model is provided", () => {
+    const filepath = join(tmpDir, "test.akf");
+    const unit = stampFile(filepath, { model: "claude-3" });
+    expect(unit.claims.length).toBe(1);
+    expect(unit.claims[0].c).toContain("claude-3");
+    const origin = (unit.claims[0] as Record<string, unknown>).origin as Record<string, unknown>;
+    expect(origin.model).toBe("claude-3");
+  });
+
+  it("should add evidence to claims", () => {
+    const filepath = join(tmpDir, "test.akf");
+    const unit = stampFile(filepath, {
+      claims: ["Tested claim"],
+      evidence: ["10/10 tests pass", "mypy clean"],
     });
     expect(unit.claims[0].evidence).toBeDefined();
     expect(unit.claims[0].evidence!.length).toBe(2);
@@ -48,108 +74,246 @@ describe("stampFile", () => {
     expect(unit.claims[0].evidence![1].type).toBe("type_check");
   });
 
-  it("stamps a .json file with _akf key", () => {
-    writeFileSync(TMP_JSON, JSON.stringify({ data: "hello" }), "utf-8");
-    stampFile(TMP_JSON, { claims: ["Processed data"], trustScore: 0.8 });
+  it("should stamp a .json file with _akf key", () => {
+    const filepath = join(tmpDir, "data.json");
+    writeFileSync(filepath, JSON.stringify({ data: "hello" }), "utf-8");
+    stampFile(filepath, { claims: ["Processed data"], trustScore: 0.8 });
 
-    const content = JSON.parse(readFileSync(TMP_JSON, "utf-8"));
+    const content = JSON.parse(readFileSync(filepath, "utf-8"));
     expect(content.data).toBe("hello");
     expect(content._akf).toBeDefined();
     expect(content._akf.claims.length).toBe(1);
   });
 
-  it("stamps a .md file with frontmatter", () => {
-    writeFileSync(TMP_MD, "# Hello\n\nWorld\n", "utf-8");
-    stampFile(TMP_MD, { claims: ["Summary accurate"], trustScore: 0.9 });
+  it("should stamp a .md file with frontmatter", () => {
+    const filepath = join(tmpDir, "doc.md");
+    writeFileSync(filepath, "# Hello\n\nWorld\n", "utf-8");
+    stampFile(filepath, { claims: ["Summary accurate"], trustScore: 0.9 });
 
-    const content = readFileSync(TMP_MD, "utf-8");
+    const content = readFileSync(filepath, "utf-8");
     expect(content).toMatch(/^---\n/);
     expect(content).toContain("akf:");
     expect(content).toContain("# Hello");
   });
 
-  it("stamps a .txt file with sidecar", () => {
-    writeFileSync(TMP_TXT, "plain text content", "utf-8");
-    stampFile(TMP_TXT, { claims: ["Content reviewed"], trustScore: 0.85 });
+  it("should stamp a .txt file with sidecar", () => {
+    const filepath = join(tmpDir, "plain.txt");
+    writeFileSync(filepath, "plain text content", "utf-8");
+    stampFile(filepath, { claims: ["Content reviewed"], trustScore: 0.85 });
 
-    expect(existsSync(TMP_TXT + ".akf.json")).toBe(true);
-    const sidecar = JSON.parse(readFileSync(TMP_TXT + ".akf.json", "utf-8"));
-    expect(sidecar.claims.length).toBe(1);
+    const sidecar = join(tmpDir, "plain.txt.akf.json");
+    const sidecarContent = JSON.parse(readFileSync(sidecar, "utf-8"));
+    expect(sidecarContent.claims.length).toBe(1);
   });
 });
 
-describe("read / extract", () => {
-  it("reads from .akf file", () => {
-    const unit = create("Test claim", 0.9);
-    writeFileSync(TMP_AKF, JSON.stringify(unit), "utf-8");
+// ---------------------------------------------------------------------------
+// read / extract
+// ---------------------------------------------------------------------------
 
-    const loaded = read(TMP_AKF);
+describe("read / extract", () => {
+  it("should read a .akf file", () => {
+    const filepath = join(tmpDir, "test.akf");
+    const unit = create("Test claim", 0.9, { src: "test" });
+    writeFileSync(filepath, toJSON(unit), "utf-8");
+
+    const loaded = read(filepath);
     expect(loaded.claims[0].c).toBe("Test claim");
+    expect(loaded.claims[0].t).toBe(0.9);
   });
 
-  it("extract is an alias for read", () => {
+  it("should read a .json file with _akf key", () => {
+    const filepath = join(tmpDir, "data.json");
+    const unit = create("JSON claim", 0.8);
+    const data = { name: "test", _akf: JSON.parse(toJSON(unit)) };
+    writeFileSync(filepath, JSON.stringify(data), "utf-8");
+
+    const loaded = read(filepath);
+    expect(loaded.claims[0].c).toBe("JSON claim");
+  });
+
+  it("should read a .json file that is a full AKF unit", () => {
+    const filepath = join(tmpDir, "unit.json");
+    const unit = create("Full unit", 0.75);
+    writeFileSync(filepath, toJSON(unit), "utf-8");
+
+    const loaded = read(filepath);
+    expect(loaded.claims[0].c).toBe("Full unit");
+  });
+
+  it("should read a .md file with YAML frontmatter", () => {
+    const filepath = join(tmpDir, "doc.md");
+    const unit = create("MD claim", 0.85);
+    const compactJson = toJSON(unit);
+    const content = `---\ntitle: Test\nakf: ${compactJson}\n---\n# Hello\n`;
+    writeFileSync(filepath, content, "utf-8");
+
+    const loaded = read(filepath);
+    expect(loaded.claims[0].c).toBe("MD claim");
+  });
+
+  it("extract should be an alias for read", () => {
     expect(extract).toBe(read);
   });
 
-  it("reads from sidecar", () => {
-    writeFileSync(TMP_TXT, "content", "utf-8");
-    const unit = create("Sidecar claim", 0.8);
-    writeFileSync(TMP_TXT + ".akf.json", JSON.stringify(unit), "utf-8");
+  it("should throw for file without AKF metadata", () => {
+    const filepath = join(tmpDir, "plain.json");
+    writeFileSync(filepath, JSON.stringify({ name: "no akf" }), "utf-8");
+    expect(() => read(filepath)).toThrow("No AKF metadata found");
+  });
 
-    const loaded = read(TMP_TXT);
+  it("should read from sidecar file", () => {
+    const filepath = join(tmpDir, "image.png");
+    const sidecar = join(tmpDir, "image.png.akf.json");
+    writeFileSync(filepath, "fake-image", "utf-8");
+    const unit = create("Sidecar claim", 0.7);
+    writeFileSync(sidecar, toJSON(unit), "utf-8");
+
+    const loaded = read(filepath);
     expect(loaded.claims[0].c).toBe("Sidecar claim");
   });
 
-  it("throws when no metadata found", () => {
-    writeFileSync(TMP_TXT, "no metadata", "utf-8");
-    expect(() => read(TMP_TXT)).toThrow("No AKF metadata found");
+  it("should read HTML with AKF script tag", () => {
+    const filepath = join(tmpDir, "page.html");
+    const unit = create("HTML claim", 0.85);
+    const jsonStr = toJSON(unit, 2);
+    writeFileSync(
+      filepath,
+      `<html><head><script type="application/akf+json">\n${jsonStr}\n</script></head><body></body></html>`,
+      "utf-8"
+    );
+    const loaded = read(filepath);
+    expect(loaded.claims[0].c).toBe("HTML claim");
   });
 });
 
+// ---------------------------------------------------------------------------
+// embed
+// ---------------------------------------------------------------------------
+
 describe("embed", () => {
-  it("embeds into HTML with script tag", () => {
-    writeFileSync(TMP_HTML, "<html><head></head><body></body></html>", "utf-8");
-    const unit = create("HTML claim", 0.85);
-    embed(TMP_HTML, unit);
+  it("should embed into .json file", () => {
+    const filepath = join(tmpDir, "data.json");
+    writeFileSync(filepath, JSON.stringify({ name: "test" }), "utf-8");
 
-    const content = readFileSync(TMP_HTML, "utf-8");
-    expect(content).toContain('application/akf+json');
-    expect(content).toContain("HTML claim");
+    const unit = create("Embedded claim", 0.8);
+    embed(filepath, unit);
 
-    // Read it back
-    const loaded = read(TMP_HTML);
-    expect(loaded.claims[0].c).toBe("HTML claim");
+    const raw = JSON.parse(readFileSync(filepath, "utf-8"));
+    expect(raw._akf).toBeDefined();
+    expect(raw._akf.claims[0].c).toBe("Embedded claim");
+    expect(raw.name).toBe("test");
   });
 
-  it("embeds with options shorthand", () => {
-    embed(TMP_AKF, {
+  it("should embed into .md file", () => {
+    const filepath = join(tmpDir, "doc.md");
+    writeFileSync(filepath, "# Hello\nWorld\n", "utf-8");
+
+    const unit = create("MD embed", 0.9);
+    embed(filepath, unit);
+
+    const content = readFileSync(filepath, "utf-8");
+    expect(content).toContain("---");
+    expect(content).toContain("akf:");
+    expect(content).toContain("# Hello");
+  });
+
+  it("should embed into .html file", () => {
+    const filepath = join(tmpDir, "page.html");
+    writeFileSync(filepath, "<html><head></head><body>Hi</body></html>", "utf-8");
+
+    const unit = create("HTML embed", 0.85);
+    embed(filepath, unit);
+
+    const content = readFileSync(filepath, "utf-8");
+    expect(content).toContain("application/akf+json");
+    expect(content).toContain("HTML embed");
+
+    // Should be readable back
+    const loaded = read(filepath);
+    expect(loaded.claims[0].c).toBe("HTML embed");
+  });
+
+  it("should use sidecar for unsupported formats", () => {
+    const filepath = join(tmpDir, "data.csv");
+    writeFileSync(filepath, "a,b,c\n1,2,3", "utf-8");
+
+    const unit = create("Sidecar embed", 0.7);
+    embed(filepath, unit);
+
+    const sidecar = join(tmpDir, "data.csv.akf.json");
+    const loaded = JSON.parse(readFileSync(sidecar, "utf-8"));
+    expect(loaded.claims[0].c).toBe("Sidecar embed");
+  });
+
+  it("should accept EmbedOptions instead of unit", () => {
+    const filepath = join(tmpDir, "opts.akf");
+    embed(filepath, {
       claims: [{ c: "Option claim", t: 0.9 }],
       classification: "internal",
     });
-    const loaded = read(TMP_AKF);
+    const loaded = read(filepath);
     expect(loaded.claims[0].c).toBe("Option claim");
     expect(loaded.label).toBe("internal");
   });
+
+  it("should embed into new .akf file", () => {
+    const filepath = join(tmpDir, "new.akf");
+    const unit = create("New file", 0.8);
+    embed(filepath, unit);
+    const loaded = read(filepath);
+    expect(loaded.claims[0].c).toBe("New file");
+  });
 });
 
+// ---------------------------------------------------------------------------
+// scan
+// ---------------------------------------------------------------------------
+
 describe("scan", () => {
-  it("scans a file with metadata", () => {
-    stampFile(TMP_AKF, {
-      claims: ["Claim 1", "Claim 2"],
-      trustScore: 0.8,
-      classification: "internal",
-    });
-    const result = scan(TMP_AKF);
+  it("should scan an enriched file", () => {
+    const filepath = join(tmpDir, "test.akf");
+    stampFile(filepath, { claims: ["Scan claim"], classification: "internal" });
+
+    const result = scan(filepath);
     expect(result.enriched).toBe(true);
-    expect(result.claimCount).toBe(2);
+    expect(result.format).toBe("akf");
+    expect(result.claimCount).toBeGreaterThanOrEqual(1);
     expect(result.classification).toBe("internal");
     expect(result.overallTrust).toBeGreaterThan(0);
+    expect(result.validation).toBeDefined();
+    expect(result.validation!.valid).toBe(true);
   });
 
-  it("scans a file without metadata", () => {
-    writeFileSync(TMP_TXT, "no metadata", "utf-8");
-    const result = scan(TMP_TXT);
+  it("should scan a non-enriched file", () => {
+    const filepath = join(tmpDir, "plain.txt");
+    writeFileSync(filepath, "Just a plain file", "utf-8");
+
+    const result = scan(filepath);
     expect(result.enriched).toBe(false);
     expect(result.claimCount).toBe(0);
+    expect(result.overallTrust).toBe(0);
+    expect(result.validation).toBeNull();
+  });
+
+  it("should count AI claims", () => {
+    const filepath = join(tmpDir, "ai.akf");
+    const unit = createMulti([
+      { c: "AI claim", t: 0.8, ai: true },
+      { c: "Human claim", t: 0.9 },
+    ]);
+    writeFileSync(filepath, toJSON(unit), "utf-8");
+
+    const result = scan(filepath);
+    expect(result.aiClaimCount).toBe(1);
+    expect(result.claimCount).toBe(2);
+  });
+
+  it("should scan multiple claims and average trust", () => {
+    const filepath = join(tmpDir, "multi.akf");
+    stampFile(filepath, { claims: ["Claim A", "Claim B"], trustScore: 0.8 });
+    const result = scan(filepath);
+    expect(result.claimCount).toBe(2);
+    expect(result.overallTrust).toBe(0.8);
   });
 });

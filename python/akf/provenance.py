@@ -8,9 +8,35 @@ from typing import Dict, List, Optional
 from .models import AKF, ProvHop
 
 
+_HOP_COMPACT_KEYS = {
+    "actor": "by",
+    "action": "do",
+    "timestamp": "at",
+    "hash": "h",
+    "penalty": "pen",
+    "claims_added": "adds",
+    "claims_removed": "drops",
+    "model": "m",
+    "input_hash": "in_h",
+    "output_hash": "out_h",
+    "duration_ms": "dur",
+    "tool_calls": "tools",
+}
+
+
+def _normalize_hop_keys(hop: dict) -> dict:
+    """Normalize a hop dict to use compact keys for consistent hashing."""
+    result = {}
+    for k, v in hop.items():
+        new_key = _HOP_COMPACT_KEYS.get(k, k)
+        result[new_key] = v
+    return result
+
+
 def compute_hop_hash(previous_hash: Optional[str], hop: dict) -> str:
     """Compute SHA-256 hash for a provenance hop, chained to previous."""
-    payload = json.dumps(hop, sort_keys=True, ensure_ascii=False)
+    normalized = _normalize_hop_keys(hop)
+    payload = json.dumps(normalized, sort_keys=True, ensure_ascii=False)
     if previous_hash:
         payload = previous_hash + "|" + payload
     digest = hashlib.sha256(payload.encode()).hexdigest()

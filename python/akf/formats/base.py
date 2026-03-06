@@ -102,12 +102,12 @@ class AKFFormatHandler(ABC):
     def _scan_metadata(self, meta: dict) -> ScanReport:
         """Analyze extracted metadata into a ScanReport."""
         claims = meta.get("claims", [])
-        ai_claims = [c for c in claims if c.get("ai")]
-        verified = [c for c in claims if c.get("ver")]
-        risks = [c.get("c", "") for c in claims if c.get("risk")]
+        ai_claims = [c for c in claims if c.get("ai") or c.get("ai_generated")]
+        verified = [c for c in claims if c.get("ver") or c.get("verified")]
+        risks = [c.get("c", c.get("content", "")) for c in claims if c.get("risk")]
         prov = meta.get("provenance", [])
 
-        trust_values = [c.get("t", 0) for c in claims]
+        trust_values = [c.get("t", c.get("confidence", 0)) for c in claims]
         avg_trust = sum(trust_values) / len(trust_values) if trust_values else None
 
         ai_contrib = meta.get("ai_contribution")

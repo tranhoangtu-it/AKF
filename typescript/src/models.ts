@@ -401,9 +401,41 @@ export function toDescriptiveClaim(claim: Claim): Record<string, unknown> {
     decay: "decay_half_life",
     exp: "expires",
     contra: "contradicts",
+    // v1.1
+    sourceDetail: "source_detail",
+    expiresAt: "expires_at",
+    verifiedAt: "verified_at",
+    dependsOn: "depends_on",
+    supersedes: "supersedes_id",
   };
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(claim)) {
+    if (value !== undefined && value !== null) {
+      result[reverseMap[key] || key] = value;
+    }
+  }
+  return result;
+}
+
+/** Convert a compact ProvHop to descriptive field names (for human display). */
+function toDescriptiveHop(hop: ProvHop): Record<string, unknown> {
+  const reverseMap: Record<string, string> = {
+    by: "actor",
+    do: "action",
+    at: "timestamp",
+    h: "hash",
+    pen: "penalty",
+    adds: "claims_added",
+    drops: "claims_removed",
+    // v1.1
+    inputHash: "input_hash",
+    outputHash: "output_hash",
+    agentProfile: "agent_profile",
+    durationMs: "duration_ms",
+    toolCalls: "tool_calls",
+  };
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(hop)) {
     if (value !== undefined && value !== null) {
       result[reverseMap[key] || key] = value;
     }
@@ -422,12 +454,18 @@ export function toDescriptive(unit: AKFUnit): Record<string, unknown> {
     ext: "allow_external",
     hash: "integrity_hash",
     prov: "provenance",
+    // v1.1
+    madeBy: "made_by",
+    schemaVersion: "schema_version",
+    parentId: "parent_id",
   };
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(unit)) {
     if (value !== undefined && value !== null) {
       if (key === "claims") {
         result["claims"] = (value as Claim[]).map(toDescriptiveClaim);
+      } else if (key === "prov") {
+        result["provenance"] = (value as ProvHop[]).map(toDescriptiveHop);
       } else {
         result[reverseMap[key] || key] = value;
       }

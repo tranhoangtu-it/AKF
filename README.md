@@ -117,10 +117,10 @@ pip install mcp-server-akf
 
 | Tool | Description |
 |------|-------------|
-| `akf_create` | Create AKF trust metadata with claims and provenance |
-| `akf_validate` | Validate an AKF file against the schema |
-| `akf_scan` | Security scan any file for trust metadata |
-| `akf_trust` | Compute effective trust score for claims |
+| `create_claim` | Create AKF trust metadata with claims and provenance |
+| `validate_file` | Validate an AKF file against the schema |
+| `scan_file` | Security scan any file for trust metadata |
+| `trust_score` | Compute effective trust score for claims |
 
 ## Skills
 
@@ -296,7 +296,7 @@ LLMs produce valid AKF **95%+ of the time** from a single example. See [LLM-PROM
 | Doc | Description |
 |-----|-------------|
 | [Full Spec](spec/akf-v1.0-spec.md) | Complete format specification |
-| [JSON Schema](spec/akf-v1.0.schema.json) | Machine-readable schema |
+| [JSON Schema](spec/akf-v1.1.schema.json) | Machine-readable schema |
 | [Producing AKF](spec/PRODUCING-AKF.md) | Quick start for 8 languages |
 | [Trust Computation](docs/trust-computation.md) | Scoring algorithm details |
 | [LLM Integration](docs/llm-integration.md) | Prompting strategies |

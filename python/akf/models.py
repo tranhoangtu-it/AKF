@@ -109,6 +109,10 @@ _CLAIM_COMPACT = {
     "expires": "exp",
     "contradicts": "contra",
     "supersedes": "sup",
+    "expires_at": "exp_at",
+    "verified_at": "ver_at",
+    "depends_on": "deps",
+    "relationship": "rel",
 }
 _PROVHOP_COMPACT = {
     "actor": "by",
@@ -516,8 +520,6 @@ class ProvHop(BaseModel):
             d = _remap_keys(d, _PROVHOP_COMPACT)
         return d
 
-    def model_dump(self, **kwargs: Any) -> Dict[str, Any]:
-        return super().model_dump(**kwargs)
 
 
 class AKF(BaseModel):

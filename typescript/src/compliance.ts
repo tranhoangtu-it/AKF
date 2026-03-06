@@ -79,14 +79,14 @@ export function audit(unit: AKFUnit, opts?: { regulation?: string }): AuditResul
   // 8. Origin tracking
   maxPoints++;
   const aiClaims = unit.claims.filter((c) => c.ai);
-  const originTracked = aiClaims.length === 0 || aiClaims.every((c) => !!(c as any).origin);
+  const originTracked = aiClaims.length === 0 || aiClaims.every((c) => !!c.origin);
   checks.push({ check: "origin_tracking", passed: originTracked });
   if (originTracked) points++;
   else recommendations.push("Add origin fields to AI claims");
 
   // 9. Reviews present
   maxPoints++;
-  const hasReviews = !!(unit as any).reviews?.length || unit.claims.some((c) => !!(c as any).reviews?.length);
+  const hasReviews = !!unit.reviews?.length || unit.claims.some((c) => !!c.reviews?.length);
   checks.push({ check: "review_present", passed: hasReviews });
   if (hasReviews) points++;
   else recommendations.push("Add reviews for human oversight");

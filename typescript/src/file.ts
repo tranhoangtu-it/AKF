@@ -247,11 +247,15 @@ export function stampFile(filepath: string, options: StampOptions = {}): AKFUnit
 
   // If no claims provided, create a default stamp claim
   if (claims.length === 0) {
-    claims.push({
+    const defaultClaim: Partial<Claim> = {
       c: `Stamped by ${agent || model || "akf"}`,
       t: trustScore,
       ai: true,
-    });
+    };
+    if (model) {
+      (defaultClaim as Record<string, unknown>).origin = { type: "ai", model };
+    }
+    claims.push(defaultClaim);
   }
 
   // Add evidence to claims if provided

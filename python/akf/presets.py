@@ -56,8 +56,12 @@ class Template:
             if self.ai_default and "ai" not in claim_kwargs and "ai_generated" not in claim_kwargs:
                 claim_kwargs["ai_generated"] = True
             # Support both compact and descriptive content/confidence keys
-            content = claim_kwargs.pop("content", None) or claim_kwargs.pop("c", None)
-            trust = claim_kwargs.pop("confidence", None) or claim_kwargs.pop("t", None)
+            content = claim_kwargs.pop("content", None)
+            if content is None:
+                content = claim_kwargs.pop("c", None)
+            trust = claim_kwargs.pop("confidence", None)
+            if trust is None:
+                trust = claim_kwargs.pop("t", None)
             if content is None or trust is None:
                 raise ValueError("Each claim must have content/c and confidence/t")
             builder.claim(content, trust, **claim_kwargs)

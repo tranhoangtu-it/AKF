@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
 
 // Simple glob implementation for .akf files
 function findAkfFiles(dir, pattern) {

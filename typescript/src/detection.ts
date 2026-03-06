@@ -42,8 +42,8 @@ export function detectAiWithoutReview(unit: AKFUnit): DetectionResult {
     return { detectionClass: "ai_content_without_review", triggered: false, severity: "info", findings: ["No AI-generated claims found"], affectedClaims: [], recommendation: "" };
   }
   for (const claim of aiClaims) {
-    const hasReview = Array.isArray((claim as any).reviews) && (claim as any).reviews.length > 0;
-    const unitReviews = Array.isArray((unit as any).reviews) && (unit as any).reviews.length > 0;
+    const hasReview = Array.isArray(claim.reviews) && claim.reviews.length > 0;
+    const unitReviews = Array.isArray(unit.reviews) && unit.reviews.length > 0;
     if (!hasReview && !unitReviews) {
       affected.push(claimId(claim));
       findings.push(`AI claim [${claimId(claim)}] has no human review`);

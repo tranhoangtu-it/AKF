@@ -4,7 +4,7 @@
 
 import { randomUUID } from "node:crypto";
 import type { AKFUnit, Claim, Evidence, ProvHop } from "./models.js";
-import { computeIntegrityHash } from "./provenance.js";
+import { computeHopHash, computeIntegrityHash } from "./provenance.js";
 
 /** Fluent builder for constructing AKF units. */
 export class AKFBuilder {
@@ -138,17 +138,17 @@ export class AKFBuilder {
     let prov: ProvHop[] | undefined;
     if (this._by || this._agentId) {
       const actor = this._by || this._agentId || "unknown";
-      prov = [
-        {
-          hop: 0,
-          by: actor,
-          do: "created",
-          at: now,
-          adds: this._claims
-            .map((c) => c.id)
-            .filter((id): id is string => id !== undefined),
-        },
-      ];
+      const hop0: ProvHop = {
+        hop: 0,
+        by: actor,
+        do: "created",
+        at: now,
+        adds: this._claims
+          .map((c) => c.id)
+          .filter((id): id is string => id !== undefined),
+      };
+      hop0.h = computeHopHash(null, hop0 as unknown as Record<string, unknown>);
+      prov = [hop0];
     }
 
     const unit: AKFUnit = {

@@ -52,7 +52,6 @@ export class AKFStream {
     this.startTime = nowISO();
 
     // Create .akfl log file alongside the content file
-    const logPath = filepath + "l"; // .md → .mdl, etc. Or use .akfl
     this.logStream = createWriteStream(filepath.replace(/(\.\w+)$/, "$1.akfl"));
 
     // Write start line

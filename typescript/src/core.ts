@@ -7,6 +7,12 @@ import type { AKFUnit, Claim } from "./models.js";
 import { normalizeUnit } from "./models.js";
 
 // ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const AKF_VERSION = "1.0";
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
@@ -66,7 +72,7 @@ export function create(
     ...opts,
   };
   return {
-    v: "1.0",
+    v: AKF_VERSION,
     claims: [claim],
     id: unitId(),
     at: nowISO(),
@@ -80,12 +86,12 @@ export function createMulti(
 ): AKFUnit {
   const claimObjects: Claim[] = claims.map((c) => ({
     ...c,
-    c: c.c!,
-    t: c.t!,
+    c: c.c || "",
+    t: c.t ?? 0.7,
     id: c.id || shortId(),
   }));
   return {
-    v: "1.0",
+    v: AKF_VERSION,
     claims: claimObjects,
     id: unitId(),
     at: nowISO(),
@@ -145,8 +151,15 @@ export function validate(unit: AKFUnit): ValidationResult {
   if (unit.claims) {
     for (let i = 0; i < unit.claims.length; i++) {
       const claim = unit.claims[i];
+      if (typeof claim.c !== "string" || claim.c.length === 0) {
+        result.valid = false;
+        result.errors.push(
+          `RULE 3: claim[${i}].c must be a non-empty string`
+        );
+      }
       if (
         typeof claim.t !== "number" ||
+        Number.isNaN(claim.t) ||
         claim.t < 0.0 ||
         claim.t > 1.0
       ) {
@@ -278,6 +291,14 @@ export function toJSON(unit: AKFUnit, indent?: number): string {
 
 /** Parse a JSON string into an AKF unit, normalizing descriptive field names to compact. */
 export function fromJSON(json: string): AKFUnit {
-  const raw = JSON.parse(json);
-  return normalizeUnit(raw);
+  let data: unknown;
+  try {
+    data = JSON.parse(json);
+  } catch (e) {
+    throw new Error(`Invalid AKF JSON: ${(e as Error).message}`);
+  }
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    throw new Error("Invalid AKF JSON: expected an object with claims array");
+  }
+  return normalizeUnit(data as Record<string, unknown>);
 }

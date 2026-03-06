@@ -18,7 +18,7 @@ report = akf.scan("report.docx")
 print(report.classification, report.ai_claim_count, report.overall_trust)
 
 # Scan a directory
-results = akf.scan_directory("./docs/")
+results = akf.universal.scan_directory("./docs/")
 
 # Get file info
 akf.info("report.docx")

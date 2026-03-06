@@ -326,9 +326,20 @@ def trust_summary(unit: AKF) -> dict:
 # v1.1 — Claim freshness helpers
 # ---------------------------------------------------------------------------
 
+def _get_expiry_string(claim: Claim) -> Optional[str]:
+    """Get the expiry date string from expires_at or freshness.valid_until."""
+    expires = getattr(claim, "expires_at", None)
+    if expires:
+        return expires
+    freshness = getattr(claim, "freshness", None)
+    if freshness and getattr(freshness, "valid_until", None):
+        return freshness.valid_until
+    return None
+
+
 def is_expired(claim: Claim) -> bool:
     """Check if a claim has passed its expiry date."""
-    expires = getattr(claim, "expires_at", None)
+    expires = _get_expiry_string(claim)
     if not expires:
         return False
     try:
@@ -340,7 +351,7 @@ def is_expired(claim: Claim) -> bool:
 
 def freshness_status(claim: Claim) -> str:
     """Returns: 'fresh', 'stale', 'expired', or 'no_expiry'."""
-    if not getattr(claim, "expires_at", None):
+    if not _get_expiry_string(claim):
         return "no_expiry"
     if is_expired(claim):
         return "expired"
