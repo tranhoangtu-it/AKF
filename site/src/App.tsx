@@ -13,6 +13,8 @@ import DownloadSection from './components/DownloadSection';
 import SectionDivider from './ui/SectionDivider';
 import AboutCreator from './components/AboutCreator';
 import PersonasPage from './components/PersonasPage';
+import ComparePage from './components/ComparePage';
+import GetStartedPage from './components/GetStartedPage';
 import Footer from './components/Footer';
 
 function HomePage() {
@@ -72,6 +74,8 @@ export default function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/personas" element={<PersonasPage />} />
+            <Route path="/compare" element={<ComparePage />} />
+            <Route path="/get-started" element={<GetStartedPage />} />
           </Routes>
         </main>
         <Footer />

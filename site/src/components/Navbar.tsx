@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 const anchorLinks = [
-  { href: '#get-started', label: 'Get Started' },
   { href: '#why-akf', label: 'Why AKF' },
   { href: '#enterprise', label: 'Enterprise' },
 ];
@@ -20,6 +19,12 @@ export default function Navbar() {
           <span className="text-sm text-text-secondary hidden sm:inline">Agent Knowledge Format</span>
         </Link>
         <div className="flex items-center gap-6">
+          <Link
+            to="/"
+            className="text-sm text-text-secondary hover:text-text-primary transition-colors hidden sm:inline"
+          >
+            Home
+          </Link>
           {anchorLinks.map((link) => (
             <a
               key={link.href}
@@ -40,6 +45,12 @@ export default function Navbar() {
             className="text-sm text-text-secondary hover:text-text-primary transition-colors hidden sm:inline"
           >
             About
+          </Link>
+          <Link
+            to="/get-started"
+            className="hidden sm:inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors"
+          >
+            Get Started
           </Link>
 
           {/* Mobile menu button */}
@@ -65,6 +76,13 @@ export default function Navbar() {
       {/* Mobile menu dropdown */}
       {menuOpen && (
         <div className="sm:hidden border-t border-border-subtle bg-surface/95 backdrop-blur-md px-6 py-3 flex flex-col gap-1">
+          <Link
+            to="/"
+            onClick={() => setMenuOpen(false)}
+            className="text-sm text-text-secondary hover:text-text-primary transition-colors py-2"
+          >
+            Home
+          </Link>
           {anchorLinks.map((link) => (
             <a
               key={link.href}
@@ -88,6 +106,13 @@ export default function Navbar() {
             className="text-sm text-text-secondary hover:text-text-primary transition-colors py-2"
           >
             About
+          </Link>
+          <Link
+            to="/get-started"
+            onClick={() => setMenuOpen(false)}
+            className="text-sm font-medium text-accent hover:text-accent-hover transition-colors py-2"
+          >
+            Get Started
           </Link>
         </div>
       )}
