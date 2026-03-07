@@ -8,3 +8,4 @@ __pycache__/
 *.akf
 !spec/examples/*.akf
 .env
+session-transcript.docx
