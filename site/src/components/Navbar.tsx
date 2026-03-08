@@ -38,18 +38,6 @@ export default function Navbar() {
           >
             Why AKF
           </button>
-          <button
-            onClick={() => scrollToSection('enterprise')}
-            className="text-sm text-text-secondary hover:text-text-primary transition-colors hidden sm:inline"
-          >
-            Enterprise
-          </button>
-          <Link
-            to="/akf-vs-md"
-            className="text-sm text-text-secondary hover:text-text-primary transition-colors hidden sm:inline"
-          >
-            AKF vs MD
-          </Link>
           <Link
             to="/personas"
             className="text-sm text-text-secondary hover:text-text-primary transition-colors hidden sm:inline"
@@ -61,6 +49,12 @@ export default function Navbar() {
             className="text-sm text-text-secondary hover:text-text-primary transition-colors hidden sm:inline"
           >
             Validate & Audit
+          </Link>
+          <Link
+            to="/akf-vs-md"
+            className="text-sm text-text-secondary hover:text-text-primary transition-colors hidden sm:inline"
+          >
+            AKF vs MD
           </Link>
           <Link
             to="/convert-to-akf"
@@ -111,19 +105,6 @@ export default function Navbar() {
           >
             Why AKF
           </button>
-          <button
-            onClick={() => { scrollToSection('enterprise'); setMenuOpen(false); }}
-            className="text-sm text-text-secondary hover:text-text-primary transition-colors py-2 text-left"
-          >
-            Enterprise
-          </button>
-          <Link
-            to="/akf-vs-md"
-            onClick={() => setMenuOpen(false)}
-            className="text-sm text-text-secondary hover:text-text-primary transition-colors py-2"
-          >
-            AKF vs MD
-          </Link>
           <Link
             to="/personas"
             onClick={() => setMenuOpen(false)}
@@ -137,6 +118,13 @@ export default function Navbar() {
             className="text-sm text-text-secondary hover:text-text-primary transition-colors py-2"
           >
             Validate & Audit
+          </Link>
+          <Link
+            to="/akf-vs-md"
+            onClick={() => setMenuOpen(false)}
+            className="text-sm text-text-secondary hover:text-text-primary transition-colors py-2"
+          >
+            AKF vs MD
           </Link>
           <Link
             to="/convert-to-akf"

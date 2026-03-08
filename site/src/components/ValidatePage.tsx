@@ -158,122 +158,171 @@ export default function ValidatePage() {
   };
 
   return (
-    <div className="pt-14">
-      <div className="max-w-3xl mx-auto px-6 py-16">
-        <h1 className="text-3xl font-bold text-text-primary mb-2">Validate & Audit</h1>
-        <p className="text-text-secondary mb-8">
-          Check structural validity or run a compliance audit on any AKF JSON. All checks run client-side.
-        </p>
-
-        {/* Tab switcher */}
-        <div className="flex gap-1 p-1 rounded-lg bg-surface-raised border border-border-subtle mb-6 w-fit">
-          <button
-            onClick={() => setTab('validate')}
-            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${tab === 'validate' ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
-          >
-            Validate
-          </button>
-          <button
-            onClick={() => setTab('audit')}
-            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${tab === 'audit' ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
-          >
-            Audit
-          </button>
+    <div className="pt-14 min-h-screen bg-gradient-to-b from-surface to-surface-raised/30">
+      <div className="max-w-4xl mx-auto px-6 py-16">
+        {/* Header */}
+        <div className="text-center mb-10">
+          <p className="text-xs font-mono text-accent tracking-widest uppercase mb-2">Online Tools</p>
+          <h1 className="text-4xl font-extrabold tracking-tight text-text-primary">Validate & Audit</h1>
+          <p className="mt-3 text-text-secondary max-w-lg mx-auto">
+            Check structural validity or run a 7-point compliance audit on any AKF JSON. Everything runs client-side — your data never leaves the browser.
+          </p>
         </div>
 
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Paste AKF JSON here..."
-          className="w-full h-64 bg-surface-raised border border-border-subtle rounded-lg p-4 font-mono text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-accent/50 resize-y"
-        />
+        {/* Main card */}
+        <div className="rounded-2xl border border-border-subtle bg-surface shadow-lg overflow-hidden">
+          {/* Tab bar */}
+          <div className="flex border-b border-border-subtle">
+            <button
+              onClick={() => setTab('validate')}
+              className={`flex-1 py-3.5 text-sm font-semibold transition-colors relative ${
+                tab === 'validate'
+                  ? 'text-accent'
+                  : 'text-text-tertiary hover:text-text-secondary'
+              }`}
+            >
+              Schema Validate
+              {tab === 'validate' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
+              )}
+            </button>
+            <button
+              onClick={() => setTab('audit')}
+              className={`flex-1 py-3.5 text-sm font-semibold transition-colors relative ${
+                tab === 'audit'
+                  ? 'text-accent'
+                  : 'text-text-tertiary hover:text-text-secondary'
+              }`}
+            >
+              Compliance Audit
+              {tab === 'audit' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
+              )}
+            </button>
+          </div>
 
-        <div className="flex gap-3 mt-4">
-          <button
-            onClick={runAction}
-            disabled={!input.trim()}
-            className="px-6 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {tab === 'validate' ? 'Validate' : 'Run Audit'}
-          </button>
-          <button
-            onClick={() => { setInput(sampleAKF); setValResult(null); setAuditResult(null); }}
-            className="px-4 py-2 rounded-lg border border-border-subtle text-text-secondary hover:text-text-primary transition-colors"
-          >
-            Load Sample
-          </button>
-        </div>
-
-        {/* Validate results */}
-        {tab === 'validate' && valResult && (
-          <div className="mt-8 space-y-4">
-            <div className={`p-4 rounded-lg border ${valResult.valid ? 'border-green-500/30 bg-green-500/5' : 'border-red-500/30 bg-red-500/5'}`}>
-              <span className={`font-semibold ${valResult.valid ? 'text-green-400' : 'text-red-400'}`}>
-                {valResult.valid ? 'Valid AKF' : 'Invalid AKF'}
+          {/* Input area */}
+          <div className="p-6">
+            <div className="relative">
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder={`{\n  "v": "1.0",\n  "claims": [\n    { "c": "Your claim here", "t": 0.95 }\n  ]\n}`}
+                className="w-full h-48 bg-surface-raised/50 border border-border-subtle rounded-xl p-4 font-mono text-sm text-text-primary placeholder:text-text-tertiary/50 focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent/40 resize-none"
+                spellCheck={false}
+              />
+              <span className="absolute top-3 right-3 text-[10px] font-mono text-text-tertiary/40 uppercase tracking-wider">
+                JSON
               </span>
-              {valResult.error && <span className="ml-2 text-red-400">{valResult.error}</span>}
             </div>
 
-            {valResult.checks.length > 0 && (
-              <div className="space-y-2">
+            <div className="flex items-center gap-3 mt-4">
+              <button
+                onClick={runAction}
+                disabled={!input.trim()}
+                className="px-6 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-white text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+              >
+                {tab === 'validate' ? 'Run Validation' : 'Run Audit'}
+              </button>
+              <button
+                onClick={() => { setInput(sampleAKF); setValResult(null); setAuditResult(null); }}
+                className="px-5 py-2.5 rounded-xl border border-border-subtle text-sm text-text-secondary hover:text-text-primary hover:border-accent/30 transition-all"
+              >
+                Load Sample
+              </button>
+              {input && (
+                <button
+                  onClick={() => { setInput(''); setValResult(null); setAuditResult(null); }}
+                  className="ml-auto text-xs text-text-tertiary hover:text-text-secondary transition-colors"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Validate results */}
+          {tab === 'validate' && valResult && (
+            <div className="border-t border-border-subtle">
+              <div className={`px-6 py-4 flex items-center gap-3 ${valResult.valid ? 'bg-emerald-500/5' : 'bg-red-500/5'}`}>
+                <span className="text-2xl">{valResult.valid ? '\u2705' : '\u274c'}</span>
+                <div>
+                  <span className={`font-bold text-lg ${valResult.valid ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                    {valResult.valid ? 'Valid AKF' : 'Invalid AKF'}
+                  </span>
+                  {valResult.error && <span className="ml-2 text-sm text-red-500">&mdash; {valResult.error}</span>}
+                </div>
+                <span className="ml-auto text-sm text-text-tertiary font-mono">
+                  {valResult.checks.filter(c => c.passed).length}/{valResult.checks.length} checks
+                </span>
+              </div>
+              <div className="px-6 pb-5 pt-2 space-y-1.5">
                 {valResult.checks.map((check, i) => (
-                  <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-surface-raised">
-                    <span className="text-lg">{check.passed ? '\u2705' : '\u274c'}</span>
-                    <div>
-                      <span className="font-medium text-text-primary">{check.rule}</span>
-                      <span className="ml-2 text-sm text-text-secondary">{check.detail}</span>
-                    </div>
+                  <div key={i} className="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-surface-raised/50 transition-colors">
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${check.passed ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'}`}>
+                      {check.passed ? '\u2713' : '\u2717'}
+                    </span>
+                    <span className="font-medium text-sm text-text-primary">{check.rule}</span>
+                    <span className="text-xs text-text-tertiary ml-auto">{check.detail}</span>
                   </div>
                 ))}
               </div>
-            )}
-          </div>
-        )}
-
-        {/* Audit results */}
-        {tab === 'audit' && auditResult && (
-          <div className="mt-8 space-y-6">
-            <div className={`p-6 rounded-lg border ${auditResult.compliant ? 'border-green-500/30 bg-green-500/5' : 'border-red-500/30 bg-red-500/5'}`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className={`text-2xl font-bold ${auditResult.compliant ? 'text-green-400' : 'text-red-400'}`}>
-                    {auditResult.compliant ? 'COMPLIANT' : 'NON-COMPLIANT'}
-                  </span>
-                  {auditResult.error && <p className="text-red-400 mt-1">{auditResult.error}</p>}
-                </div>
-                <div className="text-right">
-                  <div className="text-3xl font-mono font-bold text-text-primary">{(auditResult.score * 100).toFixed(0)}%</div>
-                  <div className="text-sm text-text-secondary">audit score</div>
-                </div>
-              </div>
             </div>
+          )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {auditResult.checks.map((check, i) => (
-                <div key={i} className={`p-4 rounded-lg border ${check.passed ? 'border-green-500/20 bg-green-500/5' : 'border-red-500/20 bg-red-500/5'}`}>
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{check.passed ? '\u2705' : '\u274c'}</span>
-                    <span className="font-medium text-text-primary">{check.check}</span>
+          {/* Audit results */}
+          {tab === 'audit' && auditResult && (
+            <div className="border-t border-border-subtle">
+              {/* Score banner */}
+              <div className={`px-6 py-5 flex items-center justify-between ${auditResult.compliant ? 'bg-emerald-500/5' : 'bg-red-500/5'}`}>
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{auditResult.compliant ? '\u2705' : '\u274c'}</span>
+                  <div>
+                    <span className={`font-bold text-lg ${auditResult.compliant ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                      {auditResult.compliant ? 'COMPLIANT' : 'NON-COMPLIANT'}
+                    </span>
+                    {auditResult.error && <p className="text-sm text-red-500">{auditResult.error}</p>}
                   </div>
                 </div>
-              ))}
-            </div>
-
-            {auditResult.recommendations.length > 0 && (
-              <div className="p-4 rounded-lg bg-surface-raised border border-border-subtle">
-                <h3 className="font-semibold text-text-primary mb-3">Recommendations</h3>
-                <ul className="space-y-2">
-                  {auditResult.recommendations.map((rec, i) => (
-                    <li key={i} className="flex items-start gap-2 text-text-secondary">
-                      <span className="text-accent mt-0.5">&bull;</span>
-                      {rec}
-                    </li>
-                  ))}
-                </ul>
+                <div className="text-right">
+                  <div className={`text-3xl font-mono font-bold ${auditResult.compliant ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                    {(auditResult.score * 100).toFixed(0)}%
+                  </div>
+                  <div className="text-[10px] uppercase tracking-wider text-text-tertiary">score</div>
+                </div>
               </div>
-            )}
-          </div>
-        )}
+
+              {/* Check grid */}
+              <div className="px-6 py-4 grid grid-cols-2 gap-2">
+                {auditResult.checks.map((check, i) => (
+                  <div key={i} className={`flex items-center gap-2.5 py-2.5 px-3 rounded-lg border ${check.passed ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-red-500/20 bg-red-500/5'}`}>
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${check.passed ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-red-500/20 text-red-600 dark:text-red-400'}`}>
+                      {check.passed ? '\u2713' : '\u2717'}
+                    </span>
+                    <span className="text-sm font-medium text-text-primary">{check.check}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Recommendations */}
+              {auditResult.recommendations.length > 0 && (
+                <div className="px-6 pb-5">
+                  <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-2.5">Recommendations</h3>
+                    <ul className="space-y-1.5">
+                      {auditResult.recommendations.map((rec, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-text-secondary">
+                          <span className="text-amber-500 mt-0.5 text-xs">&#9656;</span>
+                          {rec}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
