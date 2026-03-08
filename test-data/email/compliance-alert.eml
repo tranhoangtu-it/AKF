@@ -1,0 +1,13 @@
+From: from-compliance@corp.com
+To: cto@corp.com
+Subject: Compliance Alert: EU AI Act Gap Detected
+Date: Sat, 08 Mar 2026 10:00:00 +0000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+X-AKF-Metadata: =?utf-8?q?eyJjbGFpbXMiOiBbeyJjIjogIkVtYWlsOiBjb21wbGlhbmNlLW?=
+ =?utf-8?q?FsZXJ0IiwgInQiOiAwLjcsICJzcmMiOiAiaW5ib3gifV19?=
+X-AKF-Version: 1.0
+
+Our automated AKF scan detected 3 AI-generated claims without proper labeling.
+Files affected: forecast-q4.docx, ai-recommendations.md, model-output.json
+Action required: Run 'akf embed' with --ai flag on affected files.

@@ -1,0 +1,23 @@
+{
+  "akf": "1.0",
+  "mode": "sidecar",
+  "target_file": "screenshot-audit.jpg.akf",
+  "generated_at": "2026-03-08T04:21:13.623503+00:00",
+  "claims": [
+    {
+      "c": "Image: screenshot-audit.jpg",
+      "t": 0.75,
+      "src": "media"
+    }
+  ],
+  "integrity_hash": "sha256:6c868d6f6e6415e477336f44276dafb789c46a640f09c4eacde6b2927c51a353",
+  "_akf": {
+    "claims": [
+      {
+        "c": "Image: screenshot-audit.jpg.akf.akf",
+        "t": 0.75,
+        "src": "media"
+      }
+    ]
+  }
+}

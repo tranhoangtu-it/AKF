@@ -1,0 +1,8 @@
+{
+  "akf": "1.0",
+  "mode": "sidecar",
+  "target_file": "server-log.txt",
+  "generated_at": "2026-03-08T04:21:15.269135+00:00",
+  "classification": "internal",
+  "integrity_hash": "sha256:803a5580f8ee5e6d92fd19a692900f517051e3f8d595c417d5ce9ae6263b8042"
+}

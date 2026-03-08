@@ -56,50 +56,38 @@ akf.embed("report.docx", claims=[...], classification="confidential")
 # Audit for compliance (EU AI Act, HIPAA, SOX, GDPR, NIST AI, ISO 42001)
 result = akf.audit("report.akf", regulation="eu_ai_act")
 print(f"Compliant: {result.compliant}")
-
-# Run all 10 security detection classes
-from akf import run_all_detections
-report = run_all_detections(unit)
 ```
 
 ## For AI Agents
 
-AKF is designed **agent-first**. One-line APIs for stamping, streaming, and auditing AI output.
+AKF is designed **agent-first**. One-line APIs for stamping, streaming, and auditing.
 
 ```python
 import akf
 
-# ── Stamp what you did, with evidence ──
+# Stamp with evidence (auto-detected: test_pass, type_check, etc.)
 akf.stamp("Fixed auth bypass", kind="code_change",
           evidence=["42/42 tests passed", "mypy: 0 errors"],
           agent="claude-code", model="claude-sonnet-4-20250514")
 
-# ── Stream trust metadata in real-time ──
+# Stream trust metadata in real-time
 with akf.stream("output.md", model="gpt-4o") as s:
     for chunk in llm_response:
         s.write(chunk)
-# Trust metadata auto-attaches when stream closes
 
-# ── Stamp git commits (uses git notes, not commit messages) ──
+# Trust-annotated git commits (uses git notes)
 akf.stamp_commit(content="Refactored auth module", kind="code_change",
                  evidence=["all tests pass"], agent="claude-code")
-
-# ── Trust-annotated git log ──
-# + ACCEPT  ~ LOW  - REJECT  ? no metadata
-print(akf.trust_log(n=10))
+print(akf.trust_log(n=10))  # + ACCEPT  ~ LOW  - REJECT  ? none
 ```
-
-Evidence is auto-detected: `"42/42 tests passed"` → `type="test_pass"`, `"mypy: 0 errors"` → `type="type_check"`.
 
 ## MCP Server
 
-AKF ships an [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server so any AI agent can create, validate, scan, and audit trust metadata.
+AKF ships an [MCP](https://modelcontextprotocol.io) server so any AI agent can create, validate, scan, and audit trust metadata.
 
 ```bash
-# Install
-pip install mcp-server-akf
-
-# Add to your MCP config (Claude Desktop, Cursor, etc.)
+# Install from the repo
+pip install ./packages/mcp-server-akf
 ```
 
 ```json
@@ -113,14 +101,7 @@ pip install mcp-server-akf
 }
 ```
 
-**Available MCP tools:**
-
-| Tool | Description |
-|------|-------------|
-| `create_claim` | Create AKF trust metadata with claims and provenance |
-| `validate_file` | Validate an AKF file against the schema |
-| `scan_file` | Security scan any file for trust metadata |
-| `trust_score` | Compute effective trust score for claims |
+**MCP tools:** `create_claim` · `validate_file` · `scan_file` · `trust_score`
 
 ## Skills
 
@@ -222,22 +203,9 @@ akf kb stats ./kb
 akf kb query ./kb --topic finance
 ```
 
-## 10 Security Detection Classes
+## Security Detections
 
-AKF includes enterprise-grade security detections:
-
-| # | Detection | What It Catches |
-|---|-----------|----------------|
-| 1 | AI Content Without Review | AI output published without human oversight |
-| 2 | Trust Below Threshold | Claims falling below organizational trust policies |
-| 3 | Hallucination Risk | High-confidence AI claims without source verification |
-| 4 | Knowledge Laundering | Confidential data leaking through trust chains |
-| 5 | Classification Downgrade | Security labels being silently reduced |
-| 6 | Stale Claims | Expired or outdated trust scores still in use |
-| 7 | Ungrounded AI Claims | AI assertions with no supporting evidence |
-| 8 | Trust Degradation Chain | Trust eroding across multi-hop provenance |
-| 9 | Excessive AI Concentration | Over-reliance on AI-generated content |
-| 10 | Provenance Gap | Missing links in the trust chain |
+10 built-in detection classes: AI content without review, trust below threshold, hallucination risk, knowledge laundering, classification downgrade, stale claims, ungrounded AI claims, trust degradation chain, excessive AI concentration, provenance gap.
 
 ```python
 from akf import run_all_detections
@@ -262,16 +230,18 @@ effective_trust = confidence × authority_weight × temporal_decay × (1 + penal
 
 **Decision:** score ≥ 0.7 → ACCEPT · ≥ 0.4 → LOW · < 0.4 → REJECT
 
-## Framework Integrations
+## Integrations & Extensions
 
-| Package | Status | Description |
-|---------|--------|-------------|
-| [`mcp-server-akf`](packages/mcp-server-akf/) | ✅ Ready | MCP server — create, validate, scan, trust |
-| [`langchain-akf`](packages/langchain-akf/) | ✅ Ready | LangChain callback handler + document loader |
-| [`llama-index-akf`](packages/llama-index-akf/) | 🚧 Beta | LlamaIndex node parser + trust filter |
-| [`crewai-akf`](packages/crewai-akf/) | 🚧 Beta | CrewAI tool for trust-aware agents |
+**Framework integrations** (install from repo via `pip install ./packages/<name>`):
 
-## Extensions
+| Package | Description |
+|---------|-------------|
+| [`mcp-server-akf`](packages/mcp-server-akf/) | MCP server — create, validate, scan, trust |
+| [`langchain-akf`](packages/langchain-akf/) | LangChain callback handler + document loader |
+| [`llama-index-akf`](packages/llama-index-akf/) | LlamaIndex node parser + trust filter |
+| [`crewai-akf`](packages/crewai-akf/) | CrewAI tool for trust-aware agents |
+
+**Editor & CI extensions** (source in repo):
 
 | Extension | Description |
 |-----------|-------------|
@@ -282,14 +252,14 @@ effective_trust = confidence × authority_weight × temporal_decay × (1 + penal
 
 ## For LLMs
 
-Tell your LLM: *"Output in AKF format."*
+Prompt with one example and LLMs produce valid AKF **95%+ of the time**:
 
 ```
 Output knowledge as AKF:
 {"v":"1.0","claims":[{"c":"<claim>","t":<0-1>,"src":"<source>","tier":<1-5>,"ai":true}]}
 ```
 
-LLMs produce valid AKF **95%+ of the time** from a single example. See [LLM-PROMPT.md](spec/LLM-PROMPT.md) for a full system prompt.
+See [LLM-PROMPT.md](spec/LLM-PROMPT.md) for a full system prompt.
 
 ## Documentation
 

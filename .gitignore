@@ -9,3 +9,6 @@ __pycache__/
 !spec/examples/*.akf
 .env
 session-transcript.docx
+extensions/vscode/out/
+extensions/office-addin/dist/
+extensions/google-workspace/.clasp.json

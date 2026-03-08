@@ -3,7 +3,7 @@
   xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:type="TaskPaneApp">
-  <Id>a1b2c3d4-e5f6-7890-abcd-ef1234567890</Id>
+  <Id>a2df1c54-e062-4448-9500-70e69f4d8303</Id>
   <Version>1.0.0</Version>
   <ProviderName>AKF</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
@@ -17,7 +17,7 @@
   </Hosts>
 
   <DefaultSettings>
-    <SourceLocation DefaultValue="https://localhost:3000/taskpane.html" />
+    <SourceLocation DefaultValue="https://addin.akf.dev/taskpane.html" />
   </DefaultSettings>
 
   <Permissions>ReadWriteDocument</Permissions>
@@ -160,8 +160,8 @@
 
     <Resources>
       <bt:Urls>
-        <bt:Url id="Taskpane.Url" DefaultValue="https://localhost:3000/taskpane.html" />
-        <bt:Url id="Commands.Url" DefaultValue="https://localhost:3000/commands.html" />
+        <bt:Url id="Taskpane.Url" DefaultValue="https://addin.akf.dev/taskpane.html" />
+        <bt:Url id="Commands.Url" DefaultValue="https://addin.akf.dev/commands.html" />
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="ViewTrust.Label" DefaultValue="View Trust" />

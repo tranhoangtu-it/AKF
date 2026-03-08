@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head><title>AKF API Documentation</title><script type="application/akf+json">{"claims":[{"c":"Data from api-docs","t":0.8,"src":"web"}]}</script>
+</head>
+<body>
+<h1>AKF REST API v1.1</h1>
+<h2>POST /api/v1/validate</h2>
+<p>Validates an AKF unit and returns compliance results.</p>
+<pre><code>
+curl -X POST https://api.akf.dev/v1/validate \
+  -H "Content-Type: application/json" \
+  -d @unit.akf
+</code></pre>
+<h2>GET /api/v1/audit/{id}</h2>
+<p>Returns audit results for a specific AKF unit.</p>
+</body>
+</html>

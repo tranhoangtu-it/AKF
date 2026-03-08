@@ -1,0 +1,38 @@
+{
+  "akf_version": "1.1",
+  "default_classification": "internal",
+  "auto_embed": true,
+  "formats": [
+    "md",
+    "html",
+    "json",
+    "docx",
+    "pdf"
+  ],
+  "compliance": {
+    "regulations": [
+      "eu_ai_act",
+      "sox",
+      "hipaa"
+    ]
+  },
+  "agents": [
+    {
+      "id": "gpt-4o",
+      "trust_ceiling": 0.85
+    },
+    {
+      "id": "claude-3.5",
+      "trust_ceiling": 0.9
+    }
+  ],
+  "_akf": {
+    "claims": [
+      {
+        "c": "Data from config",
+        "t": 0.85,
+        "src": "api"
+      }
+    ]
+  }
+}

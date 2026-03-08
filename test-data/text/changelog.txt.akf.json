@@ -1,0 +1,8 @@
+{
+  "akf": "1.0",
+  "mode": "sidecar",
+  "target_file": "changelog.txt",
+  "generated_at": "2026-03-08T04:21:15.146493+00:00",
+  "classification": "internal",
+  "integrity_hash": "sha256:2f95729a7b87347c3fa1317fb8dace527b6833bec61c2fc73dc1c35cc345fdb2"
+}

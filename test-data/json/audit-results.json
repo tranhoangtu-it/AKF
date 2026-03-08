@@ -1,0 +1,36 @@
+{
+  "audit_id": "AUD-2026-0342",
+  "timestamp": "2026-03-08T10:00:00Z",
+  "target": "financial-report-q3.akf",
+  "results": {
+    "overall_compliant": true,
+    "score": 0.87,
+    "checks": [
+      {
+        "name": "provenance_present",
+        "passed": true
+      },
+      {
+        "name": "integrity_hash",
+        "passed": true
+      },
+      {
+        "name": "classification_set",
+        "passed": true
+      },
+      {
+        "name": "ai_claims_labeled",
+        "passed": false
+      }
+    ]
+  },
+  "_akf": {
+    "claims": [
+      {
+        "c": "Data from audit-results",
+        "t": 0.85,
+        "src": "api"
+      }
+    ]
+  }
+}

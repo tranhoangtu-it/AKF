@@ -1,0 +1,8 @@
+{
+  "akf": "1.0",
+  "mode": "sidecar",
+  "target_file": "api-key.txt",
+  "generated_at": "2026-03-08T04:21:15.024795+00:00",
+  "classification": "internal",
+  "integrity_hash": "sha256:fbed84ba944b874d1ab7e7ca69abd6003af0b96c29e344d0acfe44440465a616"
+}

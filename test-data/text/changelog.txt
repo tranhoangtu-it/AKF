@@ -1,0 +1,2 @@
+v1.1.0 — Added origin tracking, reviews, freshness
+v1.0.0 — Initial release with claims, provenance, trust

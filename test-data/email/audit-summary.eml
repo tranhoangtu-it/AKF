@@ -1,0 +1,16 @@
+From: audit-bot@corp.com
+To: security-team@corp.com
+Subject: Weekly Audit Summary — March 8, 2026
+Date: Sat, 08 Mar 2026 10:00:00 +0000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+X-AKF-Metadata: =?utf-8?q?eyJjbGFpbXMiOiBbeyJjIjogIkVtYWlsOiBhdWRpdC1zdW1tYX?=
+ =?utf-8?q?J5IiwgInQiOiAwLjcsICJzcmMiOiAiaW5ib3gifV19?=
+X-AKF-Version: 1.0
+
+Weekly AKF Audit Summary:
+- Files scanned: 1,247
+- AKF-enriched: 892 (71%)
+- Compliance score: 0.84
+- New violations: 3
+- Resolved: 7

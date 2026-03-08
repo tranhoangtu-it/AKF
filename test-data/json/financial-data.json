@@ -1,0 +1,25 @@
+{
+  "quarter": "Q3-2026",
+  "revenue": {
+    "total": 4200000000,
+    "cloud": 2100000000,
+    "enterprise": 1400000000
+  },
+  "growth_rate": 0.12,
+  "customers": {
+    "total": 15000,
+    "enterprise": 342,
+    "smb": 14658
+  },
+  "arr": 16800000000,
+  "net_retention": 1.18,
+  "_akf": {
+    "claims": [
+      {
+        "c": "Data from financial-data",
+        "t": 0.85,
+        "src": "api"
+      }
+    ]
+  }
+}

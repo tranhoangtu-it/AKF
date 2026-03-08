@@ -1,0 +1,39 @@
+{
+  "models": [
+    {
+      "name": "gpt-4o",
+      "requests_daily": 1200000,
+      "avg_latency_ms": 340,
+      "accuracy": 0.92
+    },
+    {
+      "name": "claude-3.5",
+      "requests_daily": 800000,
+      "avg_latency_ms": 280,
+      "accuracy": 0.94
+    },
+    {
+      "name": "internal-v2",
+      "requests_daily": 500000,
+      "avg_latency_ms": 120,
+      "accuracy": 0.88
+    }
+  ],
+  "total_tokens_processed": 45000000000,
+  "cost_per_1k_tokens": 0.015,
+  "trust_scores": {
+    "mean": 0.82,
+    "p50": 0.85,
+    "p95": 0.95,
+    "p5": 0.45
+  },
+  "_akf": {
+    "claims": [
+      {
+        "c": "Data from ai-metrics",
+        "t": 0.85,
+        "src": "api"
+      }
+    ]
+  }
+}

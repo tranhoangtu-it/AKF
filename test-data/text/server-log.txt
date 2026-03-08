@@ -1,0 +1,5 @@
+[2026-03-08 10:00:01] INFO  AKF validator started
+[2026-03-08 10:00:02] INFO  Loaded 1,247 files for scan
+[2026-03-08 10:00:15] WARN  3 files missing AKF metadata
+[2026-03-08 10:00:16] INFO  Scan complete: 892/1247 enriched (71%)
+[2026-03-08 10:00:16] INFO  Compliance score: 0.84

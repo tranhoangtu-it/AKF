@@ -1,0 +1,14 @@
+From: analyst@corp.com
+To: data-team@corp.com
+Subject: Data Export Request — Customer Analytics
+Date: Sat, 08 Mar 2026 10:00:00 +0000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+X-AKF-Metadata: =?utf-8?q?eyJjbGFpbXMiOiBbeyJjIjogIkVtYWlsOiBkYXRhLXJlcXVlc3?=
+ =?utf-8?q?QiLCAidCI6IDAuNywgInNyYyI6ICJpbmJveCJ9XX0=3D?=
+X-AKF-Version: 1.0
+
+Please export Q3 customer analytics with AKF metadata.
+Classification: confidential
+Format: JSON with embedded trust scores
+Deadline: March 15, 2026
