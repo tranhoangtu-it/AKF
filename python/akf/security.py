@@ -79,12 +79,12 @@ class SecurityScore:
 def security_score(unit: AKF) -> SecurityScore:
     """Compute a 0-10 security score for an AKF unit.
 
-    Enhanced in v1.1: 15 raw points, normalized to 0-10 scale.
+    Enhanced in v1.1: 17 raw points, normalized to 0-10 scale.
     """
     checks = []
     issues = []
     points = 0.0
-    max_points = 15.0
+    max_points = 17.0
 
     # Check 1: Classification set (2 points)
     has_label = unit.classification is not None
@@ -163,6 +163,14 @@ def security_score(unit: AKF) -> SecurityScore:
     checks.append({"check": "trust_anchor", "passed": has_anchor})
     if has_anchor:
         points += 1.0
+
+    # Check 11 (v1.1): Cryptographic signature (2 points)
+    has_sig = unit.signature is not None and unit.signature_algorithm is not None
+    checks.append({"check": "cryptographic_signature", "passed": has_sig})
+    if has_sig:
+        points += 2.0
+    else:
+        issues.append("No cryptographic signature")
 
     # Normalize to 0-10 scale
     normalized = (points / max_points) * 10.0

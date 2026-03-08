@@ -123,6 +123,28 @@
     "parent": {
       "type": "string",
       "description": "Parent unit ID for derivation lineage"
+    },
+    "sig": {
+      "type": "string",
+      "description": "Base64-encoded Ed25519 signature"
+    },
+    "sig_algo": {
+      "type": "string",
+      "description": "Signature algorithm (e.g. ed25519)",
+      "enum": ["ed25519"]
+    },
+    "key_id": {
+      "type": "string",
+      "description": "SHA-256 fingerprint of the signer's public key"
+    },
+    "sig_at": {
+      "type": "string",
+      "description": "Signing timestamp (ISO-8601)",
+      "format": "date-time"
+    },
+    "sig_by": {
+      "type": "string",
+      "description": "Signer identifier (email or agent ID)"
     }
   },
   "$defs": {
@@ -235,6 +257,9 @@
         "sup": {
           "type": "string",
           "description": "ID of claim this supersedes"
+        },
+        "cal": {
+          "$ref": "#/$defs/Calibration"
         }
       }
     },
@@ -572,6 +597,27 @@
           "type": "number",
           "description": "Cost in USD",
           "minimum": 0
+        }
+      }
+    },
+    "Calibration": {
+      "type": "object",
+      "required": ["method"],
+      "additionalProperties": true,
+      "properties": {
+        "method": {
+          "type": "string",
+          "description": "Calibration method",
+          "enum": ["self_reported", "source_verified", "externally_audited"]
+        },
+        "verifier": {
+          "type": "string",
+          "description": "Entity that performed verification"
+        },
+        "ver_at": {
+          "type": "string",
+          "description": "Verification timestamp (ISO-8601)",
+          "format": "date-time"
         }
       }
     },

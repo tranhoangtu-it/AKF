@@ -41,10 +41,22 @@ export default function Navbar() {
             Personas
           </Link>
           <Link
-            to="/convert-to-akf"
+            to="/validate"
             className="text-sm text-text-secondary hover:text-text-primary transition-colors hidden sm:inline"
           >
-            Convert to AKF
+            Validate
+          </Link>
+          <Link
+            to="/audit"
+            className="text-sm text-text-secondary hover:text-text-primary transition-colors hidden sm:inline"
+          >
+            Audit
+          </Link>
+          <Link
+            to="/compare"
+            className="text-sm text-text-secondary hover:text-text-primary transition-colors hidden sm:inline"
+          >
+            Compare
           </Link>
           <Link
             to="/about"
@@ -107,11 +119,25 @@ export default function Navbar() {
             Personas
           </Link>
           <Link
-            to="/convert-to-akf"
+            to="/validate"
             onClick={() => setMenuOpen(false)}
             className="text-sm text-text-secondary hover:text-text-primary transition-colors py-2"
           >
-            Convert to AKF
+            Validate
+          </Link>
+          <Link
+            to="/audit"
+            onClick={() => setMenuOpen(false)}
+            className="text-sm text-text-secondary hover:text-text-primary transition-colors py-2"
+          >
+            Audit
+          </Link>
+          <Link
+            to="/compare"
+            onClick={() => setMenuOpen(false)}
+            className="text-sm text-text-secondary hover:text-text-primary transition-colors py-2"
+          >
+            Compare
           </Link>
           <Link
             to="/about"

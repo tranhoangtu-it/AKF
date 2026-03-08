@@ -20,6 +20,7 @@ from .models import (
     AKF, Claim, Evidence, Fidelity, ProvHop,
     Origin, GenerationParams, MadeBy, Review, SourceDetail,
     ReasoningChain, Annotation, Freshness, CostMetadata, AgentProfile,
+    Calibration,
 )
 from .core import create, create_multi, load, loads, validate, ValidationResult
 from .universal import ConvertResult
@@ -160,6 +161,21 @@ def stream(output_path=None, *, agent=None, model=None, confidence=0.7, **kwargs
     return AKFStream(output_path, agent=agent, model=model, confidence=confidence, **kwargs)
 
 
+def keygen(**kwargs):
+    """Generate an Ed25519 keypair for signing AKF units."""
+    from .signing import keygen as _keygen
+    return _keygen(**kwargs)
+
+def sign_unit(unit, **kwargs):
+    """Sign an AKF unit with an Ed25519 private key."""
+    from .signing import sign as _sign
+    return _sign(unit, **kwargs)
+
+def verify_signature(unit, **kwargs):
+    """Verify the Ed25519 signature on an AKF unit."""
+    from .signing import verify as _verify
+    return _verify(unit, **kwargs)
+
 def read(filepath):
     """Read AKF trust metadata from any file.
 
@@ -201,6 +217,7 @@ __all__ = [
     "TrustLevel",
     "TrustResult",
     "ValidationResult",
+    "Calibration",
     # v1.1 models
     "Origin",
     "GenerationParams",
@@ -305,6 +322,10 @@ __all__ = [
     "stamp_commit",
     "read_commit",
     "trust_log",
+    # Signing
+    "keygen",
+    "sign_unit",
+    "verify_signature",
     # Universal format layer
     "ConvertResult",
     "convert_directory",

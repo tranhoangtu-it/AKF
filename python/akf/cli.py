@@ -895,3 +895,231 @@ def freshness_cmd(file):
         click.echo(f"  [{icon}] {status:10s} {preview}")
         if expires != "never":
             click.echo(f"              expires: {expires}")
+
+
+# ---------------------------------------------------------------------------
+# Cryptographic signing commands
+# ---------------------------------------------------------------------------
+
+@main.command("keygen")
+@click.option("--name", default="default", help="Key name prefix")
+@click.option("--dir", "key_dir", default=None, type=click.Path(), help="Key directory (default: ~/.akf/keys/)")
+def keygen_cmd(name, key_dir):
+    """Generate an Ed25519 keypair for signing .akf files."""
+    from .signing import keygen
+
+    priv_path, pub_path = keygen(key_dir=key_dir, name=name)
+    click.secho("Generated Ed25519 keypair:", fg="green")
+    click.echo(f"  Private key: {priv_path}")
+    click.echo(f"  Public key:  {pub_path}")
+    click.echo()
+    click.echo("Keep the private key safe. Share the public key for verification.")
+
+
+@main.command("sign")
+@click.argument("file", type=click.Path(exists=True))
+@click.option("--key", "key_path", default=None, type=click.Path(exists=True),
+              help="Private key path (default: ~/.akf/keys/default.pem)")
+@click.option("--signer", default=None, help="Signer identifier (email or ID)")
+def sign_cmd(file, key_path, signer):
+    """Sign an .akf file with an Ed25519 private key."""
+    from .signing import sign as akf_sign
+
+    if key_path is None:
+        key_path = str(Path.home() / ".akf" / "keys" / "default.pem")
+        if not Path(key_path).exists():
+            click.secho("No default key found. Run 'akf keygen' first.", fg="red")
+            sys.exit(1)
+
+    unit = load(file)
+    signed = akf_sign(unit, key_path, signer=signer)
+    signed.save(file)
+    click.secho(f"Signed {file}", fg="green")
+    click.echo(f"  Algorithm: {signed.signature_algorithm}")
+    click.echo(f"  Key ID:    {signed.public_key_id}")
+    if signed.signed_by:
+        click.echo(f"  Signer:    {signed.signed_by}")
+
+
+@main.command("verify")
+@click.argument("file", type=click.Path(exists=True))
+@click.option("--key", "key_path", default=None, type=click.Path(exists=True),
+              help="Public key path (default: ~/.akf/keys/default.pub.pem)")
+def verify_cmd(file, key_path):
+    """Verify the signature on an .akf file."""
+    from .signing import verify as akf_verify
+
+    if key_path is None:
+        key_path = str(Path.home() / ".akf" / "keys" / "default.pub.pem")
+        if not Path(key_path).exists():
+            click.secho("No default public key found. Specify --key.", fg="red")
+            sys.exit(1)
+
+    unit = load(file)
+    try:
+        akf_verify(unit, key_path)
+        click.secho(f"Signature valid", fg="green")
+        if unit.signed_by:
+            click.echo(f"  Signed by: {unit.signed_by}")
+        if unit.signed_at:
+            click.echo(f"  Signed at: {unit.signed_at}")
+    except ValueError as e:
+        click.secho(f"Verification failed: {e}", fg="red")
+        sys.exit(1)
+
+
+# ---------------------------------------------------------------------------
+# Calibration command
+# ---------------------------------------------------------------------------
+
+@main.command("calibrate")
+@click.argument("file", type=click.Path(exists=True))
+@click.option("--method", type=click.Choice(["self_reported", "source_verified", "externally_audited"]),
+              help="Calibration method")
+@click.option("--verifier", default=None, help="Verifier identifier")
+def calibrate_cmd(file, method, verifier):
+    """Show or update trust calibration on all claims."""
+    from .models import Calibration
+
+    unit = load(file)
+
+    if method is None:
+        # Show mode
+        click.secho(f"Calibration: {file}", bold=True)
+        for claim in unit.claims:
+            preview = (claim.content[:50] + "...") if len(claim.content) > 50 else claim.content
+            if claim.calibration:
+                cal = claim.calibration
+                click.echo(f'  {cal.method:20s}  "{preview}"')
+                if cal.verifier:
+                    click.echo(f"    verifier: {cal.verifier}")
+            else:
+                click.echo(f'  {"(none)":20s}  "{preview}"')
+        return
+
+    # Update mode
+    from datetime import datetime, timezone
+
+    cal = Calibration(
+        method=method,
+        verifier=verifier,
+        verified_at=datetime.now(timezone.utc).isoformat(),
+    )
+    updated_claims = [
+        c.model_copy(update={"calibration": cal}) for c in unit.claims
+    ]
+    updated = unit.model_copy(update={"claims": updated_claims})
+    updated.save(file)
+    click.secho(f"Calibrated {len(updated.claims)} claims as '{method}'", fg="green")
+
+
+# ---------------------------------------------------------------------------
+# Schema commands
+# ---------------------------------------------------------------------------
+
+@main.group("schema")
+def schema_group():
+    """Schema validation and info commands."""
+    pass
+
+
+@schema_group.command("check")
+@click.argument("file", type=click.Path(exists=True))
+def schema_check_cmd(file):
+    """Validate a file against the AKF schema."""
+    result = validate(file)
+    if result.valid:
+        level_names = {0: "Invalid", 1: "Minimal", 2: "Practical", 3: "Full"}
+        click.secho(
+            f"Schema valid (Level {result.level}: {level_names[result.level]})",
+            fg="green",
+        )
+    else:
+        click.secho("Schema validation failed", fg="red")
+        for err in result.errors:
+            click.secho(f"  {err}", fg="red")
+
+    for warn in result.warnings:
+        click.secho(f"  {warn}", fg="yellow")
+
+
+@schema_group.command("info")
+def schema_info_cmd():
+    """Show schema version and registry status."""
+    click.secho("AKF Schema Info", bold=True)
+    click.echo("  Version:    1.1")
+    click.echo("  Schema URL: https://akf.dev/schema/v1.1")
+    click.echo("  Spec file:  spec/akf-v1.1.schema.json")
+    click.echo("  Registry:   https://akf.dev")
+
+
+# ---------------------------------------------------------------------------
+# Batch command
+# ---------------------------------------------------------------------------
+
+@main.command("batch")
+@click.argument("manifest", type=click.Path(exists=True))
+@click.option("--parallel", is_flag=True, help="Run operations in parallel")
+def batch_cmd(manifest, parallel):
+    """Process multiple operations from a JSON manifest file.
+
+    Manifest format: {"operations": [{"action": "validate|sign|convert", "file": "..."}]}
+    """
+    with open(manifest) as f:
+        data = json.load(f)
+
+    operations = data.get("operations", [])
+    if not operations:
+        click.secho("No operations in manifest", fg="yellow")
+        return
+
+    def _run_op(op):
+        action = op.get("action", "")
+        filepath = op.get("file", "")
+        result = {"action": action, "file": filepath}
+        try:
+            if action == "validate":
+                r = validate(filepath)
+                result["valid"] = r.valid
+                result["status"] = "ok"
+            elif action == "sign":
+                from .signing import sign as akf_sign
+                key = op.get("key", str(Path.home() / ".akf" / "keys" / "default.pem"))
+                signer = op.get("signer")
+                unit = load(filepath)
+                signed = akf_sign(unit, key, signer=signer)
+                signed.save(filepath)
+                result["status"] = "signed"
+            elif action == "convert":
+                from . import universal as akf_u
+                out = op.get("output", filepath + ".akf")
+                akf_u.to_akf(filepath, out)
+                result["status"] = "converted"
+                result["output"] = out
+            elif action == "embed":
+                from . import universal as akf_u
+                akf_u.embed(filepath, classification=op.get("classification"))
+                result["status"] = "embedded"
+            else:
+                result["status"] = "error"
+                result["error"] = f"Unknown action: {action}"
+        except Exception as e:
+            result["status"] = "error"
+            result["error"] = str(e)
+        return result
+
+    if parallel:
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            results = list(pool.map(_run_op, operations))
+    else:
+        results = [_run_op(op) for op in operations]
+
+    ok = sum(1 for r in results if r.get("status") not in ("error",))
+    err = sum(1 for r in results if r.get("status") == "error")
+
+    click.secho(f"Batch: {ok} succeeded, {err} failed ({len(operations)} total)", fg="green" if err == 0 else "red")
+    for r in results:
+        icon = "\u2705" if r.get("status") != "error" else "\u274c"
+        msg = r.get("error", r.get("status", ""))
+        click.echo(f"  {icon} {r['action']} {r['file']} — {msg}")

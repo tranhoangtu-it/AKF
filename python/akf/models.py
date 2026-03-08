@@ -97,6 +97,11 @@ _AGENT_PROFILE_COMPACT = {
     "capabilities": "caps",
     "trust_ceiling": "ceil",
 }
+_CALIBRATION_COMPACT = {
+    "method": "method",
+    "verifier": "verifier",
+    "verified_at": "ver_at",
+}
 _CLAIM_COMPACT = {
     "content": "c",
     "confidence": "t",
@@ -113,6 +118,7 @@ _CLAIM_COMPACT = {
     "verified_at": "ver_at",
     "depends_on": "deps",
     "relationship": "rel",
+    "calibration": "cal",
 }
 _PROVHOP_COMPACT = {
     "actor": "by",
@@ -138,6 +144,11 @@ _AKF_COMPACT = {
     "integrity_hash": "hash",
     "schema_version": "sv",
     "parent_id": "parent",
+    "signature": "sig",
+    "signature_algorithm": "sig_algo",
+    "public_key_id": "key_id",
+    "signed_at": "sig_at",
+    "signed_by": "sig_by",
 }
 
 
@@ -402,6 +413,22 @@ class AgentProfile(BaseModel):
         return d
 
 
+class Calibration(BaseModel):
+    """Trust calibration metadata for a claim."""
+
+    model_config = ConfigDict(extra="allow", populate_by_name=True)
+
+    method: Literal["self_reported", "source_verified", "externally_audited"]
+    verifier: Optional[str] = None
+    verified_at: Optional[str] = Field(None, validation_alias=AliasChoices("ver_at", "verified_at"))
+
+    def to_dict(self, compact: bool = False) -> dict:
+        d = _strip_none(self.model_dump())
+        if compact:
+            d = _remap_keys(d, _CALIBRATION_COMPACT)
+        return d
+
+
 # ---------------------------------------------------------------------------
 # Enhanced existing models
 # ---------------------------------------------------------------------------
@@ -452,6 +479,7 @@ class Claim(BaseModel):
     verified_at: Optional[str] = Field(None, validation_alias=AliasChoices("ver_at", "verified_at"))
     depends_on: Optional[List[str]] = Field(None, validation_alias=AliasChoices("deps", "depends_on"))
     relationship: Optional[str] = Field(None, validation_alias=AliasChoices("rel", "relationship"))
+    calibration: Optional[Calibration] = Field(None, validation_alias=AliasChoices("cal", "calibration"))
 
     @model_validator(mode="before")
     @classmethod
@@ -480,6 +508,8 @@ class Claim(BaseModel):
             d["annotations"] = [a.to_dict(compact=compact) for a in self.annotations]
         if self.cost is not None:
             d["cost"] = self.cost.to_dict(compact=compact)
+        if self.calibration is not None:
+            d["calibration"] = self.calibration.to_dict(compact=compact)
         if compact:
             d = _remap_keys(d, _CLAIM_COMPACT)
         return d
@@ -562,6 +592,16 @@ class AKF(BaseModel):
         "1.1", validation_alias=AliasChoices("sv", "schema_version")
     )
     parent_id: Optional[str] = Field(None, validation_alias=AliasChoices("parent", "parent_id"))
+    # Cryptographic signing fields
+    signature: Optional[str] = Field(None, validation_alias=AliasChoices("sig", "signature"))
+    signature_algorithm: Optional[str] = Field(
+        None, validation_alias=AliasChoices("sig_algo", "signature_algorithm")
+    )
+    public_key_id: Optional[str] = Field(
+        None, validation_alias=AliasChoices("key_id", "public_key_id")
+    )
+    signed_at: Optional[str] = Field(None, validation_alias=AliasChoices("sig_at", "signed_at"))
+    signed_by: Optional[str] = Field(None, validation_alias=AliasChoices("sig_by", "signed_by"))
 
     @model_validator(mode="before")
     @classmethod

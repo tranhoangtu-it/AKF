@@ -16,6 +16,11 @@ import PersonasPage from './components/PersonasPage';
 import ComparePage from './components/ComparePage';
 import GetStartedPage from './components/GetStartedPage';
 import ConvertPage from './components/ConvertPage';
+import ValidatePage from './components/ValidatePage';
+import AuditPage from './components/AuditPage';
+import CompareC2paPage from './components/CompareC2paPage';
+import ComparePurviewPage from './components/ComparePurviewPage';
+import CompareWatermarkingPage from './components/CompareWatermarkingPage';
 import Footer from './components/Footer';
 
 function HomePage() {
@@ -78,6 +83,11 @@ export default function App() {
             <Route path="/compare" element={<ComparePage />} />
             <Route path="/get-started" element={<GetStartedPage />} />
             <Route path="/convert-to-akf" element={<ConvertPage />} />
+            <Route path="/validate" element={<ValidatePage />} />
+            <Route path="/audit" element={<AuditPage />} />
+            <Route path="/compare/c2pa" element={<CompareC2paPage />} />
+            <Route path="/compare/purview" element={<ComparePurviewPage />} />
+            <Route path="/compare/watermarking" element={<CompareWatermarkingPage />} />
           </Routes>
         </main>
         <Footer />
