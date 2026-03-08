@@ -176,6 +176,41 @@ def verify_signature(unit, **kwargs):
     from .signing import verify as _verify
     return _verify(unit, **kwargs)
 
+def track(client, **kwargs):
+    """Wrap an LLM client to auto-track model/provider on every API call.
+
+    Supported: OpenAI, Anthropic, Mistral, Google GenerativeAI.
+    For OpenAI-compatible APIs (Groq, Together), pass provider= to override.
+
+    Usage::
+
+        client = akf.track(openai.OpenAI())
+        response = client.chat.completions.create(model="gpt-4o", ...)
+        unit = akf.create("claim", confidence=0.95)
+        # unit.origin.model == "gpt-4o" — automatic
+    """
+    from .tracking import track as _track
+    return _track(client, **kwargs)
+
+
+def get_last_model():
+    """Return the last tracked LLM model/provider, or None."""
+    from .tracking import get_last_model as _get
+    return _get()
+
+
+def get_tracking_history():
+    """Return all tracked LLM calls in this thread."""
+    from .tracking import get_tracking_history as _get
+    return _get()
+
+
+def clear_tracking():
+    """Reset LLM tracking context."""
+    from .tracking import clear_tracking as _clear
+    _clear()
+
+
 def read(filepath):
     """Read AKF trust metadata from any file.
 
@@ -326,6 +361,11 @@ __all__ = [
     "keygen",
     "sign_unit",
     "verify_signature",
+    # Tracking
+    "track",
+    "get_last_model",
+    "get_tracking_history",
+    "clear_tracking",
     # Universal format layer
     "ConvertResult",
     "convert_directory",

@@ -54,8 +54,25 @@ def create(content: str, confidence: float = None, *, t: float = None, kind: str
     if evidence_objects is not None:
         kwargs["evidence"] = evidence_objects
 
+    # Auto-populate origin from tracking context if not explicitly set
+    _tracked_model = None
+    if "origin" not in kwargs:
+        from .tracking import get_last_model
+        _tracked_model = get_last_model()
+        if _tracked_model:
+            from .models import Origin
+            kwargs["origin"] = Origin(
+                type="ai",
+                model=_tracked_model["model"],
+                provider=_tracked_model["provider"],
+            )
+
     claim = Claim(content=content, confidence=score, **kwargs)
-    unit = AKF(version="1.0", claims=[claim])
+    unit = AKF(
+        version="1.0",
+        claims=[claim],
+        **({} if not _tracked_model else {"model": _tracked_model["model"]}),
+    )
     # Apply secure envelope defaults
     if unit.classification is None:
         unit = unit.model_copy(update={"classification": "internal"})
