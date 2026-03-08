@@ -7,9 +7,11 @@ export default function Footer() {
         <div className="flex items-center gap-4">
           <span className="text-accent font-mono font-bold">.akf</span>
           <span className="text-sm text-text-tertiary">MIT License</span>
+        </div>
+        <div className="flex items-center gap-4">
+          <p className="text-sm text-text-tertiary">Built for the AI era.</p>
           <Link to="/about" className="text-sm text-text-tertiary hover:text-text-primary transition-colors">About</Link>
         </div>
-        <p className="text-sm text-text-tertiary">Built for the AI era.</p>
       </div>
     </footer>
   );
