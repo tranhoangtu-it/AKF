@@ -12,7 +12,7 @@ import zipfile
 import pytest
 
 from akf.formats.xlsx import XLSXHandler, embed, extract, is_enriched, scan
-from akf.formats._ooxml import AKF_JSON_PATH, AKF_XML_PATH
+from akf.formats._ooxml import CUSTOM_PROPS_PATH
 from akf.formats.base import ScanReport
 
 
@@ -182,8 +182,7 @@ class TestEmbedExtract:
             new_entries = set(z.namelist())
 
         assert original_entries.issubset(new_entries)
-        assert AKF_JSON_PATH in new_entries
-        assert AKF_XML_PATH in new_entries
+        assert CUSTOM_PROPS_PATH in new_entries
 
     def test_embed_preserves_worksheet_content(self, xlsx_file, sample_metadata):
         """Embedding should preserve the worksheet XML content."""
@@ -222,8 +221,7 @@ class TestEmbedExtract:
 
         with zipfile.ZipFile(xlsx_file, "r") as z:
             names = z.namelist()
-            assert names.count(AKF_JSON_PATH) == 1
-            assert names.count(AKF_XML_PATH) == 1
+            assert names.count(CUSTOM_PROPS_PATH) == 1
 
 
 class TestIsEnriched:

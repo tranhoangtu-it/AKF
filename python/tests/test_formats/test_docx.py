@@ -12,7 +12,7 @@ import zipfile
 import pytest
 
 from akf.formats.docx import DOCXHandler, embed, extract, is_enriched, scan
-from akf.formats._ooxml import AKF_JSON_PATH, AKF_XML_PATH
+from akf.formats._ooxml import CUSTOM_PROPS_PATH
 from akf.formats.base import ScanReport
 
 
@@ -159,9 +159,8 @@ class TestEmbedExtract:
             new_entries = set(z.namelist())
 
         assert original_entries.issubset(new_entries)
-        # Plus the two new AKF entries
-        assert AKF_JSON_PATH in new_entries
-        assert AKF_XML_PATH in new_entries
+        # Plus the custom properties entry
+        assert CUSTOM_PROPS_PATH in new_entries
 
     def test_embed_preserves_original_content(self, docx_file, sample_metadata):
         """Embedding should preserve the content of original ZIP entries."""
@@ -203,8 +202,7 @@ class TestEmbedExtract:
 
         with zipfile.ZipFile(docx_file, "r") as z:
             names = z.namelist()
-            assert names.count(AKF_JSON_PATH) == 1
-            assert names.count(AKF_XML_PATH) == 1
+            assert names.count(CUSTOM_PROPS_PATH) == 1
 
     def test_embed_unicode_content(self, docx_file):
         """Embedding metadata with unicode content should work correctly."""
@@ -275,27 +273,25 @@ class TestScan:
         assert "Unverified financial projection" in report.risk_claims[0]
 
 
-class TestXMLWrapper:
-    """Tests for the XML wrapper stored alongside the JSON."""
+class TestCustomProperties:
+    """Tests for the custom properties storage format."""
 
-    def test_xml_wrapper_exists(self, docx_file, sample_metadata):
-        """After embedding, the XML wrapper should exist in the ZIP."""
+    def test_custom_props_exists(self, docx_file, sample_metadata):
+        """After embedding, docProps/custom.xml should exist."""
         embed(docx_file, sample_metadata)
         with zipfile.ZipFile(docx_file, "r") as z:
-            assert AKF_XML_PATH in z.namelist()
-            xml_content = z.read(AKF_XML_PATH).decode("utf-8")
-            assert "akf:metadata" in xml_content
-            assert "https://akf.dev/v1" in xml_content
-            assert "CDATA" in xml_content
+            assert CUSTOM_PROPS_PATH in z.namelist()
+            xml_content = z.read(CUSTOM_PROPS_PATH).decode("utf-8")
+            assert "AKF.Enabled" in xml_content
+            assert "AKF.Metadata" in xml_content
 
-    def test_xml_wrapper_contains_json(self, docx_file, sample_metadata):
-        """The XML wrapper should contain the same JSON as the direct file."""
+    def test_custom_props_has_summary_fields(self, docx_file, sample_metadata):
+        """Custom properties should include human-readable summary fields."""
         embed(docx_file, sample_metadata)
         with zipfile.ZipFile(docx_file, "r") as z:
-            json_data = json.loads(z.read(AKF_JSON_PATH))
-            xml_content = z.read(AKF_XML_PATH).decode("utf-8")
-            # The JSON should appear inside the CDATA section
-            assert json.dumps(json_data["akf"]) is not None
+            xml_content = z.read(CUSTOM_PROPS_PATH).decode("utf-8")
+            assert "AKF.Classification" in xml_content
+            assert "AKF.Claims" in xml_content
 
 
 class TestEdgeCases:
