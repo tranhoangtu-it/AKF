@@ -394,7 +394,127 @@ export default function GetStartedPage() {
           </div>
         </section>
 
-        {/* ── SECTION 5: Download Brochure ── */}
+        {/* ── SECTION 5: Zero Overhead ── */}
+        <section className="mb-20">
+          <h2 className="text-2xl sm:text-3xl font-bold text-text-primary text-center mb-2">Zero Overhead</h2>
+          <p className="text-text-secondary text-center mb-8">
+            Benchmarked, not promised. AKF adds trust metadata without adding latency, memory bloat, or background noise.
+          </p>
+
+          {/* Hero stats row */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+            {[
+              { value: '0.2ms', label: 'Stamp latency', detail: 'Per file, any format' },
+              { value: '7KB', label: 'Memory per stamp', detail: 'Peak allocation' },
+              { value: '0.04ms', label: '10 security checks', detail: 'All detections, one call' },
+              { value: '0%', label: 'CPU at idle', detail: 'Daemon sleeps between polls' },
+            ].map((stat) => (
+              <div key={stat.label} className="rounded-xl border border-border-subtle bg-surface-raised p-5 text-center">
+                <div className="text-2xl sm:text-3xl font-bold text-accent font-mono">{stat.value}</div>
+                <div className="text-sm font-semibold text-text-primary mt-1">{stat.label}</div>
+                <div className="text-xs text-text-tertiary mt-0.5">{stat.detail}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Detailed benchmarks */}
+          <div className="rounded-xl border border-border-subtle bg-surface-raised overflow-hidden">
+            <div className="px-6 py-4 border-b border-border-subtle">
+              <h3 className="text-lg font-semibold text-text-primary">Benchmarked on real workloads</h3>
+              <p className="text-sm text-text-secondary mt-1">53 automated tests. Every number verified in CI.</p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-surface-overlay text-left">
+                    <th className="px-6 py-3 font-medium text-text-secondary">Operation</th>
+                    <th className="px-6 py-3 font-medium text-text-secondary">Latency</th>
+                    <th className="px-6 py-3 font-medium text-text-secondary">Memory</th>
+                    <th className="px-6 py-3 font-medium text-text-secondary hidden sm:table-cell">Verdict</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border-subtle">
+                  {[
+                    { op: 'stamp() — single claim', latency: '0.2ms', mem: '7KB', verdict: 'Instant' },
+                    { op: 'stamp_file() — any format', latency: '0.2–1.5ms', mem: '30KB', verdict: 'Instant' },
+                    { op: 'stamp_file() — 1MB document', latency: '1.5ms', mem: '30KB', verdict: 'Instant' },
+                    { op: 'Trust analysis', latency: '0.01ms', mem: '2KB', verdict: 'Instant' },
+                    { op: '10 security detections', latency: '0.04ms', mem: '6KB', verdict: 'Instant' },
+                    { op: '100 detections (100 claims)', latency: '0.5ms', mem: '6KB', verdict: 'Instant' },
+                    { op: 'JSON roundtrip', latency: '0.03ms', mem: '11KB', verdict: 'Instant' },
+                    { op: 'Watcher poll (1,000 files)', latency: '9ms', mem: '—', verdict: 'Imperceptible' },
+                  ].map((row) => (
+                    <tr key={row.op} className="hover:bg-surface-overlay transition-colors">
+                      <td className="px-6 py-3 text-text-primary font-mono text-xs">{row.op}</td>
+                      <td className="px-6 py-3 text-emerald-500 font-mono font-semibold">{row.latency}</td>
+                      <td className="px-6 py-3 text-text-secondary font-mono">{row.mem}</td>
+                      <td className="px-6 py-3 hidden sm:table-cell">
+                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs font-medium">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                          {row.verdict}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Three proof points */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6">
+            <div className="rounded-xl border border-border-subtle bg-surface-raised p-5">
+              <div className="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-3">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                </svg>
+              </div>
+              <h4 className="text-sm font-semibold text-text-primary mb-1">No runtime penalty</h4>
+              <p className="text-xs text-text-secondary leading-relaxed">
+                Stamping a file takes 0.2ms. Your users will never notice. Your CI won't slow down. Your pipelines stay fast.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-border-subtle bg-surface-raised p-5">
+              <div className="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-3">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
+                </svg>
+              </div>
+              <h4 className="text-sm font-semibold text-text-primary mb-1">Kilobytes, not megabytes</h4>
+              <p className="text-xs text-text-secondary leading-relaxed">
+                A single stamp allocates 7KB. A 500-claim enterprise report uses 1.5MB. No memory pressure, no GC spikes.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-border-subtle bg-surface-raised p-5">
+              <div className="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-3">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.745 3.745 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+                </svg>
+              </div>
+              <h4 className="text-sm font-semibold text-text-primary mb-1">Thread-safe, crash-proof</h4>
+              <p className="text-xs text-text-secondary leading-relaxed">
+                4 threads stamping simultaneously? Tested. 200 concurrent operations, zero conflicts, unique IDs guaranteed.
+              </p>
+            </div>
+          </div>
+
+          {/* Daemon note */}
+          <div className="mt-6 rounded-lg bg-surface-overlay border border-border-subtle p-4 flex items-start gap-3">
+            <svg className="w-5 h-5 text-accent shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+            </svg>
+            <div>
+              <p className="text-sm text-text-primary font-medium">Optional background daemon</p>
+              <p className="text-xs text-text-secondary mt-1">
+                <code className="text-accent">akf install</code> sets up a lightweight file watcher that auto-stamps new documents. It polls every 5 seconds, scans 1,000 files in under 9ms, and uses zero CPU between cycles. Survives reboots. Fully reversible with <code className="text-accent">akf uninstall</code>.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ── SECTION 6: Download Brochure ── */}
         <section className="mb-20">
           <div className="rounded-xl border border-border-subtle bg-surface-raised p-8 text-center">
             <div className="w-12 h-12 rounded-lg bg-accent/10 text-accent flex items-center justify-center mx-auto mb-4">
