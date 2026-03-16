@@ -28,6 +28,10 @@ provenance, or verification with that content. AKF is that format.
 - Compliance mapping (EU AI Act, SOX, NIST AI RMF)
 - Dual SDK: Python + TypeScript
 - Integrations: LangChain, LlamaIndex, CrewAI, MCP
+- **Zero-touch auto-stamping** — background daemon + shell hooks + VS Code extension
+- **Smart context detection** — infers git author, download source, AI-generated flag, project classification rules
+- **Shell integration** — `eval "$(akf shell-hook)"` intercepts Claude, ChatGPT, Aider, Ollama and stamps outputs
+- **OS-native file monitoring** — kqueue on macOS, polling cross-platform
 
 ---
 
@@ -73,8 +77,16 @@ degradation chains, etc.
     akf inspect demo.akf
     akf trust demo.akf
 
+The latest version adds zero-touch auto-stamping. Install a background
+daemon (`akf install`) or add `eval "$(akf shell-hook)"` to your shell
+config, and every file that Claude, ChatGPT, Aider, or Ollama generates
+gets stamped automatically. Smart context detection infers git author,
+download source, classification rules, and AI-generated flags without
+any manual intervention.
+
 Dual SDK (Python + TypeScript), integrations for LangChain, LlamaIndex,
 CrewAI, and an MCP server. Maps to EU AI Act, SOX, NIST AI RMF for compliance.
+VS Code extension auto-stamps files edited by Copilot and Cursor.
 
 Source: https://github.com/HMAKT99/AKF
 Docs: https://akf.dev
@@ -219,6 +231,18 @@ The CLI gives you quick inspection:
     akf trust report.akf       # Compute trust scores
     akf scan ./outputs/ --recursive  # Scan a directory
 
+Even better — you can make it fully automatic:
+
+    # Add to ~/.zshrc — auto-stamps files from AI CLI tools
+    eval "$(akf shell-hook)"
+
+    # Or install a background daemon
+    akf install
+
+It intercepts claude, chatgpt, ollama, aider, and other AI tools, then
+stamps any files they create or modify. Smart context detection infers
+the model, git author, and project classification rules automatically.
+
 There's also an MCP server if you want agents to create and validate trust
 metadata programmatically, and integrations for LangChain, LlamaIndex, and
 CrewAI.
@@ -274,7 +298,19 @@ AI inference at 0.98 confidence → score drops to ~0.29
 10 detection classes catch hallucination risk, knowledge laundering,
 stale claims, and more.
 
-5/ Maps directly to compliance frameworks:
+5/ Zero-touch mode. No manual stamping needed.
+
+Add one line to your shell config:
+
+eval "$(akf shell-hook)"
+
+Now every file Claude, ChatGPT, Aider, or Ollama touches gets stamped
+automatically. Smart context detection infers git author, download source,
+and project classification rules.
+
+akf install  # Or run a background daemon
+
+6/ Maps directly to compliance frameworks:
 
 • EU AI Act (transparency, human oversight)
 • SOX 302/404 (internal controls)
@@ -282,9 +318,10 @@ stale claims, and more.
 
 akf audit report.akf --regulation eu_ai_act
 
-6/ Open source. MIT license. Python + TypeScript SDKs.
+7/ Open source. MIT license. Python + TypeScript SDKs.
 
 Integrations for LangChain, LlamaIndex, CrewAI, and MCP.
+VS Code extension for Copilot/Cursor auto-stamping.
 
 pip install akf
 npm install akf-format
@@ -315,13 +352,17 @@ and security classifications to AI-generated content. It embeds directly
 into the file formats organizations already use — Word, Excel, PowerPoint,
 PDF, and 20+ others.
 
-For technical teams: pip install akf and you're up in 30 seconds.
+For technical teams: pip install akf and you're up in 30 seconds. Add
+eval "$(akf shell-hook)" to your shell config and every file Claude,
+ChatGPT, or Copilot touches gets stamped automatically — zero manual work.
 
 For compliance teams: AKF maps directly to EU AI Act, SOX, and NIST AI RMF
 requirements. One command gives you an actionable compliance report.
 
 For leadership: 10 built-in detection classes catch hallucination risk,
 knowledge laundering, and trust degradation before they reach stakeholders.
+Smart context detection automatically identifies AI-generated content,
+even without explicit stamping.
 
 The trust model is transparent — every claim carries a confidence score,
 source tier, temporal decay factor, and verification status. No black boxes.
@@ -380,12 +421,20 @@ knowledge laundering, stale claims, and more.
 COMPLIANCE
 Maps to EU AI Act, SOX 302/404, and NIST AI RMF.
 
+ZERO-TOUCH MODE
+One line in your shell config and every AI-generated file gets stamped
+automatically. Smart context detection infers git author, download source,
+and project classification rules.
+
+    eval "$(akf shell-hook)"    # Intercepts claude, chatgpt, aider, ollama
+    akf install                 # Background daemon for ~/Downloads, ~/Desktop
+
 INSTALL
 pip install akf          # Python
 npm install akf-format   # TypeScript
 
 INTEGRATIONS
-LangChain, LlamaIndex, CrewAI, MCP server, VS Code extension, GitHub Action,
+LangChain, LlamaIndex, CrewAI, MCP server, VS Code AI monitor, GitHub Action,
 Office Add-in, Google Workspace Add-on.
 
 Open source. MIT license.
@@ -556,6 +605,33 @@ with akf.stream("output.md", model="gpt-4o") as s:
 There are integrations for LangChain (callback handler + doc loader),
 LlamaIndex (node parser + trust filter), CrewAI (trust-aware agent tool),
 and an MCP server for any agent that speaks the protocol.
+
+## Zero-touch mode
+
+Manual stamping is fine for pipelines, but what about the files you create
+interactively — chatting with Claude, running Aider, using Copilot in VS Code?
+
+AKF has three layers of automatic stamping:
+
+**Shell hook** — add one line to your shell config:
+
+```bash
+eval "$(akf shell-hook)"
+```
+
+Now whenever you run `claude`, `chatgpt`, `aider`, `ollama`, or any other AI
+CLI tool, AKF snapshots the files before and stamps any new or modified files
+after. Smart context detection automatically infers git author, download
+source, project classification rules, and AI-generated flags.
+
+**Background daemon** — `akf install` runs a file watcher that monitors
+`~/Downloads`, `~/Desktop`, and `~/Documents`. New files get stamped with
+context-aware metadata automatically.
+
+**VS Code extension** — detects large AI-style insertions from Copilot, Cursor,
+and other AI coding tools, and stamps on save.
+
+The goal: if AI touched it, AKF knows about it. No manual intervention.
 
 ## Compliance built in
 

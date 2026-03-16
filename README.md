@@ -177,12 +177,57 @@ meta = akf.extract("report.docx")
 akf.scan("report.docx")
 ```
 
+## Zero-Touch Auto-Stamping
+
+AKF can automatically stamp every file AI touches — no manual intervention needed.
+
+```bash
+# Install the background watcher daemon
+akf install
+
+# Or run in foreground
+akf watch ~/Downloads ~/Desktop ~/Documents
+```
+
+The daemon monitors directories for new and modified files and stamps them with trust metadata. **Smart context detection** automatically infers:
+
+- **Git author** — from `git log` history
+- **Download source** — from macOS extended attributes
+- **Classification** — from project `.akf/config.json` rules
+- **AI-generated flag** — from LLM tracking timestamps + content heuristics
+- **Confidence score** — dynamically adjusted based on available evidence
+
+### Shell Hook (intercept AI CLI tools)
+
+```bash
+# Add to ~/.zshrc or ~/.bashrc
+eval "$(akf shell-hook)"
+```
+
+Automatically detects when you run `claude`, `chatgpt`, `aider`, `ollama`, or other AI CLI tools, and stamps any files they create or modify.
+
+### Project Rules
+
+Create `.akf/config.json` in your project root:
+
+```json
+{
+  "rules": [
+    {"pattern": "*/finance/*", "classification": "confidential", "tier": 2},
+    {"pattern": "*/public/*", "classification": "public", "tier": 3}
+  ]
+}
+```
+
+Files matching these patterns are automatically classified when stamped.
+
 ## CLI
 
 ```bash
 # ── Quick start ──
 akf                          # Welcome + quick start
-akf create --demo            # Create a demo file
+akf quickstart               # Interactive demo
+akf doctor                   # Check installation health
 
 # ── Stamp & create ──
 akf create report.akf \
@@ -205,6 +250,11 @@ akf embed report.docx --classification confidential \
 akf extract report.docx
 akf scan report.docx
 akf scan ./docs/ --recursive
+
+# ── Auto-stamping ──
+akf install                                   # Install background daemon
+akf watch ~/Downloads ~/Documents             # Watch directories
+akf shell-hook                                # Print shell hook code
 
 # ── Git integration ──
 akf stamp --agent claude-code --evidence "tests pass"
@@ -258,6 +308,7 @@ effective_trust = confidence × authority_weight × temporal_decay × (1 + penal
 | Extension | Description |
 |-----------|-------------|
 | [VS Code](extensions/vscode/) | Syntax highlighting, hover info, validation for `.akf` files |
+| [VS Code AI Monitor](editors/vscode/) | Auto-stamp files edited by Copilot, Cursor, and other AI tools |
 | [GitHub Action](extensions/github-action/) | CI validation — fail builds on untrusted claims |
 | [Google Workspace](extensions/google-workspace/) | Add-on for Docs, Sheets, Slides |
 | [Office Add-in](extensions/office-addin/) | Add-in for Word, Excel, PowerPoint |

@@ -125,7 +125,8 @@ class TestRunDaemon:
         stop_evt = None
 
         def fake_watch(directories=None, *, agent=None, classification="internal",
-                       interval=5.0, stop_event=None, logger=None):
+                       interval=5.0, stop_event=None, logger=None,
+                       config=None, use_events=False):
             nonlocal stop_evt
             watch_called["value"] = True
             stop_evt = stop_event
