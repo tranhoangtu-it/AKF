@@ -57,13 +57,35 @@ brief = (akf.AKFTransformer(unit)
 brief.save("weekly-brief.akf")
 ```
 
+## 6. Auto-Stamp Everything (Zero-Touch)
+
+```bash
+# Install background daemon — watches ~/Downloads, ~/Desktop, ~/Documents
+akf install
+
+# Or add shell hook — intercepts claude, chatgpt, aider, ollama
+eval "$(akf shell-hook)"    # Add to ~/.zshrc or ~/.bashrc
+```
+
+Smart context detection automatically infers git author, download source, project classification rules, and AI-generated flags. No manual stamping needed.
+
 ## CLI
 
 ```bash
+# Quick start
+akf quickstart       # Interactive demo
+akf doctor           # Check installation health
+
+# Create & inspect
 akf create report.akf --claim "Revenue $4.2B" --trust 0.98 --src "SEC 10-Q"
 akf validate report.akf
 akf inspect report.akf
 akf trust report.akf
 akf consume report.akf --output brief.akf --threshold 0.6 --agent my-agent
 akf provenance report.akf
+
+# Auto-stamping
+akf install          # Background daemon
+akf watch ~/Documents ~/Desktop   # Watch specific directories
+akf shell-hook       # Print shell hook code
 ```

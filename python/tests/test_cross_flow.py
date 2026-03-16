@@ -68,7 +68,7 @@ class TestWatchAndStamp:
         stamped = []
         stop = threading.Event()
 
-        def fake_stamp(filepath, agent, classification, logger=None):
+        def fake_stamp(filepath, agent, classification, logger=None, **kwargs):
             stamped.append(str(filepath))
             stop.set()
 

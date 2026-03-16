@@ -165,10 +165,59 @@ reviewed: true
 
 ---
 
+## Zero-Touch Auto-Stamping
+
+AKF can automatically stamp every file AI touches — no manual `akf stamp` needed.
+
+### Background Daemon
+
+```bash
+akf install        # Install background watcher daemon
+akf watch ~/Downloads ~/Desktop ~/Documents   # Or run in foreground
+```
+
+The daemon monitors directories for new and modified files, using **smart context detection** to automatically infer:
+
+- **Git author** — from commit history
+- **Download source** — from macOS extended attributes
+- **Classification** — from project `.akf/config.json` rules
+- **AI-generated flag** — from LLM tracking + content heuristics
+- **Confidence score** — dynamically adjusted based on evidence
+
+### Shell Hook (intercept AI CLI tools)
+
+```bash
+# Add to ~/.zshrc or ~/.bashrc
+eval "$(akf shell-hook)"
+```
+
+Automatically detects when you run `claude`, `chatgpt`, `aider`, `ollama`, or other AI CLI tools, and stamps any files they create or modify.
+
+### VS Code Extension
+
+The AKF VS Code extension auto-stamps files edited by Copilot, Cursor, and other AI coding tools. It detects large AI-style insertions and stamps on save.
+
+### Project Rules
+
+Create `.akf/config.json` in your project root to auto-classify files:
+
+```json
+{
+  "rules": [
+    {"pattern": "*/finance/*", "classification": "confidential", "tier": 2},
+    {"pattern": "*/public/*", "classification": "public", "tier": 3}
+  ]
+}
+```
+
+---
+
 ## CLI Quick Reference
 
 | Command                              | Description                        |
 |--------------------------------------|------------------------------------|
+| `akf quickstart`                     | Interactive demo (create→inspect→trust→security) |
+| `akf doctor`                         | Check installation health          |
 | `akf stamp <file>`                   | Add trust metadata to a file       |
 | `akf read <file>`                    | Read trust metadata from a file    |
 | `akf audit <path>`                   | Generate compliance audit report   |
@@ -176,6 +225,9 @@ reviewed: true
 | `akf scan <path>`                    | Scan for AI content risks          |
 | `akf scan --recursive <path>`        | Recursive security scan            |
 | `akf detect <file>`                  | Detect AI-specific threats         |
+| `akf install`                        | Install background watcher daemon  |
+| `akf watch <dirs>`                   | Watch directories for new files    |
+| `akf shell-hook`                     | Print shell hook code for zsh/bash |
 
 ---
 

@@ -13,6 +13,10 @@
 - [x] `akf doctor` command (PATH check + platform-specific fix)
 - [x] `akf quickstart` command (one-command demo)
 - [x] PATH troubleshooting in READMEs
+- [x] `akf install` / `akf watch` — background daemon with smart context detection
+- [x] `akf shell-hook` — shell integration for AI CLI tools
+- [x] VS Code AI monitor extension (`editors/vscode/`)
+- [x] Smart context detection (git author, download source, project rules, AI flags)
 - [ ] Clean venv test: `pip install akf` → `akf quickstart`
 - [ ] Clean node test: `npm install akf-format` → import works
 - [ ] Terminal GIF recorded
@@ -192,12 +196,21 @@ Publish a reusable GitHub Action:
 
 This makes AKF show up in PR checks — visible to entire teams.
 
-### 5.3 VS Code extension (future)
+### 5.3 VS Code extension (DONE)
 
-- Inline trust score decorations on AKF files
-- "AKF: Inspect" command palette action
-- Gutter icons for claim trust levels
-- This is a high-effort, high-reward item for later
+- [x] Auto-stamps files edited by Copilot, Cursor, and other AI coding tools
+- [x] Detects large AI-style insertions and stamps on save
+- [x] Status bar integration and manual stamp/inspect commands
+- Source: `editors/vscode/`
+
+### 5.4 Zero-Touch Auto-Stamping (DONE)
+
+- [x] Background watcher daemon (`akf install`)
+- [x] Shell hooks for zsh/bash (`eval "$(akf shell-hook)"`)
+- [x] Smart context detection (git author, download source, project rules, AI detection)
+- [x] OS-native file monitoring (kqueue on macOS, polling cross-platform)
+- [x] Content-based AI detection heuristics (text + code patterns)
+- [x] macOS creator app detection (Claude, ChatGPT, Cursor via Spotlight metadata)
 
 ---
 
