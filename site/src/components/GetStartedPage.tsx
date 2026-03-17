@@ -218,6 +218,11 @@ export default function GetStartedPage() {
             <CopyCommand command="pip install akf" />
             <CopyCommand command="npm install akf-format" />
           </div>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-text-secondary">
+            <span>Then try: <code className="text-accent font-mono">akf quickstart</code></span>
+            <span className="text-border-subtle">|</span>
+            <span>Having issues? <code className="text-accent font-mono">akf doctor</code></span>
+          </div>
         </section>
 
         {/* ── SECTION 2: Pick Your Path ── */}
@@ -506,9 +511,9 @@ export default function GetStartedPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
             </svg>
             <div>
-              <p className="text-sm text-text-primary font-medium">Optional background daemon</p>
+              <p className="text-sm text-text-primary font-medium">Zero-touch auto-stamping</p>
               <p className="text-xs text-text-secondary mt-1">
-                <code className="text-accent">akf install</code> sets up a lightweight file watcher that auto-stamps new documents. It polls every 5 seconds, scans 1,000 files in under 9ms, and uses zero CPU between cycles. Survives reboots. Fully reversible with <code className="text-accent">akf uninstall</code>.
+                <code className="text-accent">akf install</code> sets up a lightweight file watcher that auto-stamps new documents with smart context detection (git author, download source, AI-generated flags, project classification rules). Add <code className="text-accent">eval "$(akf shell-hook)"</code> to your shell config to intercept Claude, ChatGPT, Aider, and Ollama. Fully reversible with <code className="text-accent">akf uninstall</code>.
               </p>
             </div>
           </div>

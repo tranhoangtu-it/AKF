@@ -4,6 +4,24 @@
 
 ### Added
 
+#### Zero-Touch Auto-Stamping
+- **Background daemon**: `akf install` activates a file watcher that monitors directories and auto-stamps new/modified files
+- **Shell hooks**: `eval "$(akf shell-hook)"` intercepts AI CLI tools (Claude, ChatGPT, Aider, Ollama, etc.) and stamps files they create or modify
+- **Smart context detection**: automatically infers git author, download source (macOS xattr), project classification rules, and AI-generated flags
+- **Content-based AI detection**: weighted text/code heuristic signals for identifying AI-generated content without tracking context
+- **macOS creator app detection**: identifies files created by Claude, ChatGPT, Cursor via Spotlight metadata (`mdls`)
+- **OS-native file monitoring**: kqueue on macOS for instant change detection, polling fallback for cross-platform
+- **Project rules**: `.akf/config.json` with `fnmatch` patterns for automatic classification (e.g., `*/finance/*` → confidential)
+- **Smart confidence scoring**: dynamic confidence adjustment based on evidence signals (+0.10 source, +0.05 git, -0.10 AI without source)
+- **VS Code AI Monitor extension** (`editors/vscode/`): auto-stamps files edited by Copilot, Cursor, and other AI coding tools
+
+#### CLI
+- `akf doctor` — checks PATH, Python version, platform-specific fix instructions
+- `akf quickstart` — one-command interactive demo (create → inspect → trust → security)
+- `akf shell-hook` — outputs shell hook code for zsh/bash
+- `akf watch` — watch directories and auto-stamp new/modified files
+- `akf install` / `akf uninstall` — manage background watcher daemon
+
 #### Extensions
 - **Office Add-in**: 10 AI-specific detection classes (hallucination risk, knowledge laundering, classification downgrade, etc.)
 - **Office Add-in**: Claim creation form with confidence slider, source attribution, and AI risk tagging

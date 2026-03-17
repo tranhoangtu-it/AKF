@@ -12,9 +12,13 @@
 <h1 align="center">AKF — Agent Knowledge Format</h1>
 
 <p align="center">
-  <strong>The trust metadata standard for every file AI touches.</strong><br/>
+  <strong>The file format for the AI era.</strong><br/>
   Trust scores · Source provenance · Security classification · Compliance audit<br/>
   Embeds natively into DOCX, PDF, XLSX, images, code, and 20+ formats.
+</p>
+
+<p align="center">
+  <img src="https://vhs.charm.sh/vhs-5CBgpmZTfi8OsreNzeOdF5.gif" alt="AKF Demo" width="700" />
 </p>
 
 <p align="center">

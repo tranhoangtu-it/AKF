@@ -1,6 +1,6 @@
 {
-  "name": "akf-vscode",
-  "displayName": "AKF — Agent Knowledge Format",
+  "name": "akf-ai-monitor",
+  "displayName": "AKF AI Monitor",
   "description": "Auto-stamp AI-generated files with trust metadata. Detects Copilot, Cursor, and other AI completions.",
   "version": "0.1.0",
   "publisher": "akf",

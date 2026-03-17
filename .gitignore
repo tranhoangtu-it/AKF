@@ -12,3 +12,8 @@ session-transcript.docx
 extensions/vscode/out/
 extensions/office-addin/dist/
 extensions/google-workspace/.clasp.json
+~$*
+editors/vscode/out/
+editors/vscode/node_modules/
+demo.gif
+demo.webm

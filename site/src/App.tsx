@@ -11,6 +11,7 @@ import AgentIntegration from './components/AgentIntegration';
 import WorksWith from './components/WorksWith';
 import DownloadSection from './components/DownloadSection';
 import InteractiveDemo from './components/InteractiveDemo';
+import AutoStamping from './components/AutoStamping';
 import SectionDivider from './ui/SectionDivider';
 import AboutCreator from './components/AboutCreator';
 import PersonasPage from './components/PersonasPage';
@@ -31,6 +32,7 @@ function HomePage() {
       <Hero />
       <InteractiveDemo />
       <ValueProps />
+      <AutoStamping />
       <WorksWith />
 
       {/* ── GET STARTED ── */}
