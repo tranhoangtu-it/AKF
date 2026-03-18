@@ -2,27 +2,62 @@
 
 Thank you for your interest in contributing to the Agent Knowledge Format project!
 
+## Prerequisites
+
+- Python 3.9+
+- Node.js 18+
+- git
+
 ## Development Setup
 
-### Python SDK
-
 ```bash
-cd python
-pip install -e ".[dev]"
-pytest
+git clone https://github.com/HMAKT99/AKF.git
+cd AKF
+
+# Python SDK
+cd python && pip install -e ".[dev]" && cd ..
+
+# TypeScript SDK
+cd typescript && npm install && cd ..
+
+# Website
+cd site && npm install && cd ..
 ```
 
-### TypeScript SDK
+## Project Structure
+
+| Directory | Description |
+|-----------|-------------|
+| `python/akf/` | Python SDK |
+| `typescript/src/` | TypeScript SDK |
+| `site/` | Website (Vite + React + Tailwind) |
+| `spec/` | Format specification and JSON schema |
+| `packages/` | Framework integrations (MCP, LangChain, LlamaIndex, CrewAI) |
+| `extensions/` | VS Code, GitHub Action, Office, Google Workspace |
+| `skills/` | Agent skill files |
+
+## Running Tests
 
 ```bash
-cd typescript
-npm install
-npm test
+# Python
+cd python && python -m pytest tests/ -v
+
+# TypeScript
+cd typescript && npm test
+
+# Website (build check)
+cd site && npm run build
 ```
 
-## How to Contribute
+## PR Process
 
-### Reporting Bugs
+1. Create a feature branch (`git checkout -b feature/my-feature`)
+2. Make your changes
+3. Run all relevant tests (see above)
+4. Add tests for new functionality
+5. Open a PR against `main`
+
+## Reporting Bugs
 
 Open a GitHub issue with:
 - AKF version (`akf --version`)
@@ -30,33 +65,21 @@ Open a GitHub issue with:
 - Minimal reproduction case
 - Expected vs actual behavior
 
-### Feature Requests
+## Feature Requests
 
 Open a GitHub issue with the "feature request" label. Include:
 - Use case description
 - Proposed API surface
 - Example code showing how you'd use it
 
-### Pull Requests
+## Code Style
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/my-feature`)
-3. Make your changes
-4. Ensure all tests pass:
-   ```bash
-   cd python && pytest
-   cd typescript && npm test
-   ```
-5. Add tests for new functionality
-6. Submit a PR against `main`
+- Follow existing patterns in the codebase. No unnecessary abstractions.
+- **Python**: Use type hints. Run `pytest` before submitting.
+- **TypeScript**: Use strict TypeScript. Run `npm test` before submitting.
+- **Spec changes**: Must maintain backward compatibility with existing `.akf` files.
 
-### Code Standards
-
-- **Python**: Follow existing patterns. Use type hints. Run `pytest` before submitting.
-- **TypeScript**: Follow existing patterns. Use strict TypeScript. Run `npm test` before submitting.
-- **Spec changes**: Any changes to `spec/` must maintain backward compatibility with existing .akf files.
-
-### Areas for Contribution
+## Areas for Contribution
 
 - Framework integrations (LangChain, LlamaIndex, CrewAI, etc.)
 - New file format handlers in `universal.py`
