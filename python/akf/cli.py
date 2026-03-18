@@ -1657,3 +1657,74 @@ def certify_cmd(path, min_trust, evidence_file, fmt, fail_on_untrusted, agent) -
 
     if fail_on_untrusted and not report.all_certified:
         sys.exit(1)
+
+
+@main.command("log")
+@click.option("--count", default=10, type=int, help="Number of commits to show (default: 10)")
+@click.option("--trust", "trust_only", is_flag=True, help="Show only trust-annotated commits")
+def log_cmd(count, trust_only) -> None:
+    """Show trust-annotated git history.
+
+    Displays recent commits with AKF trust indicators based on git notes.
+    """
+    import subprocess
+
+    # Get recent commits
+    try:
+        result = subprocess.run(
+            ["git", "log", f"--format=%H %s", "-n", str(count)],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        click.secho("Error: not a git repository or git is not installed.", fg="red")
+        sys.exit(1)
+
+    lines = result.stdout.strip().splitlines()
+    if not lines:
+        click.secho("No commits found.", fg="yellow")
+        return
+
+    for line in lines:
+        if not line.strip():
+            continue
+        sha, _, subject = line.partition(" ")
+        short_sha = sha[:7]
+
+        # Try to read AKF git note
+        trust_score = None
+        try:
+            note_result = subprocess.run(
+                ["git", "notes", "--ref=akf", "show", sha],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            note_data = json.loads(note_result.stdout.strip())
+            # Look for trust score in common locations
+            trust_score = note_data.get("trust") or note_data.get("trust_score")
+            if trust_score is None and "claims" in note_data:
+                claims = note_data["claims"]
+                if claims:
+                    scores = [c.get("t", c.get("trust", 0)) for c in claims]
+                    trust_score = sum(scores) / len(scores) if scores else None
+        except (subprocess.CalledProcessError, json.JSONDecodeError, KeyError):
+            trust_score = None
+
+        # Filter if --trust flag is set
+        if trust_only and trust_score is None:
+            continue
+
+        # Format output
+        if trust_score is not None:
+            if trust_score >= 0.7:
+                indicator = click.style("+ ACCEPT", fg="green")
+            elif trust_score >= 0.4:
+                indicator = click.style("~ LOW   ", fg="yellow")
+            else:
+                indicator = click.style("- REJECT", fg="red")
+            click.echo(f"{indicator}  {trust_score:.2f}  {short_sha}  {subject}")
+        else:
+            indicator = click.style("? none  ", dim=True)
+            click.echo(f"{indicator}        {short_sha}  {subject}")
