@@ -23,9 +23,19 @@
   "engines": {
     "node": ">=16"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HMAKT99/AKF",
+    "directory": "typescript"
+  },
+  "homepage": "https://akf.dev",
+  "bugs": {
+    "url": "https://github.com/HMAKT99/AKF/issues"
+  },
   "files": [
     "dist",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "keywords": [
