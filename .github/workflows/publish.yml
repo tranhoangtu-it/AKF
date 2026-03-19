@@ -34,44 +34,14 @@ jobs:
           npm install
           npm test
 
-  # ── Publish Python to PyPI ───────────────────────────────────────
-  publish-python:
-    needs: [test-python, test-typescript]
-    runs-on: ubuntu-latest
-    environment: release
-    permissions:
-      contents: read   # checkout private repo
-      id-token: write  # for PyPI trusted publishing (OIDC)
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install build tools
-        run: pip install build
-
-      - name: Build package
-        run: |
-          cd python
-          python -m build
-
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          packages-dir: python/dist/
-          # Uses OIDC trusted publishing by default.
-          # Fallback: set PYPI_API_TOKEN secret and uncomment below:
-          # password: ${{ secrets.PYPI_API_TOKEN }}
-
   # ── Publish TypeScript to npm ────────────────────────────────────
-  publish-typescript:
+  publish-npm:
     needs: [test-python, test-typescript]
     runs-on: ubuntu-latest
     environment: release
     permissions:
       contents: read   # checkout private repo
-      id-token: write  # for npm trusted publishing (OIDC provenance)
+      id-token: write  # for npm provenance attestation
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -94,7 +64,7 @@ jobs:
 
   # ── Create GitHub Release ────────────────────────────────────────
   github-release:
-    needs: [publish-python, publish-typescript]
+    needs: [publish-npm]
     runs-on: ubuntu-latest
     permissions:
       contents: write
