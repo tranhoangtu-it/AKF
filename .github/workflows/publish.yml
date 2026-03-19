@@ -68,6 +68,8 @@ jobs:
     needs: [test-python, test-typescript]
     runs-on: ubuntu-latest
     environment: release
+    permissions:
+      id-token: write  # for npm trusted publishing (OIDC provenance)
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -81,10 +83,10 @@ jobs:
           npm install
           npm run build
 
-      - name: Publish to npm
+      - name: Publish to npm with provenance
         run: |
           cd typescript
-          npm publish --access public
+          npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
