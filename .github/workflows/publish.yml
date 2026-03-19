@@ -55,10 +55,10 @@ jobs:
           npm install
           npm run build
 
-      - name: Publish to npm with provenance
+      - name: Publish to npm
         run: |
           cd typescript
-          npm publish --access public --provenance
+          npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
