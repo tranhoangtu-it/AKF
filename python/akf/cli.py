@@ -433,6 +433,16 @@ def embed_cmd(file, classification, claim, trust, src, ai, agent) -> None:
             "at": datetime.now(timezone.utc).isoformat(),
         })
 
+    # If no new claims or metadata provided, re-embed existing metadata
+    if not claims and not metadata:
+        existing = akf_u.extract(file)
+        if existing:
+            akf_u.embed(file, metadata=existing)
+            click.secho("Re-embedded existing AKF metadata into {}".format(file), fg="green")
+        else:
+            click.secho("No AKF metadata found to embed. Use --claim to add claims.", fg="yellow")
+        return
+
     akf_u.embed(file, claims=claims if claims else None, metadata=metadata if metadata else None,
                 classification=classification)
     click.secho("Embedded AKF metadata into {}".format(file), fg="green")
