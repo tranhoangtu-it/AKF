@@ -220,6 +220,12 @@ def stamp_file(
         allow_external=False,
     )
 
+    # Compute integrity hash of the file content before embedding
+    import hashlib
+    with open(filepath, "rb") as fh:
+        file_hash = hashlib.sha256(fh.read()).hexdigest()[:16]
+    unit = unit.model_copy(update={"integrity_hash": f"sha256:{file_hash}"})
+
     # Embed into the file using universal format layer
     from .universal import embed as _embed
     _embed(filepath, metadata=unit.to_dict(compact=True))
