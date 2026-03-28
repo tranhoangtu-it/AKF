@@ -113,6 +113,13 @@ def _register_builtin_formats() -> None:
     for ext in ("mp3", "wav", "flac", "ogg"):
         _FORMAT_REGISTRY[ext] = _audio_factory
 
+    def _go_factory() -> AKFFormatHandler:
+        from .formats.go_format import GoHandler
+        return GoHandler()
+
+    # Go source files
+    _FORMAT_REGISTRY["go"] = _go_factory
+
 
 # Initialize built-in formats
 _register_builtin_formats()
